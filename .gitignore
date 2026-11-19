@@ -1,0 +1,23 @@
+# Build output
+build/
+CMakeUserPresets.json
+
+# Portable package and installers
+dist/
+Cloppy-portable.zip
+CloppySetup.exe
+installer/packages/com.cloppy.app/data/
+
+# Editor / OS
+.vscode/
+.idea/
+*.user
+Thumbs.db
+desktop.ini
+
+# Local secrets
+.env
+
+# Tool/agent metadata
+.freebuff/
+.cloud-attachments/

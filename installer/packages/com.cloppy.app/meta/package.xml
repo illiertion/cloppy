@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Package>
+    <DisplayName>Cloppy</DisplayName>
+    <Description>Windows 클립보드 매니저 - 클립 기록, 코드 블록, 에셋, 텍스트 확장</Description>
+    <Version>1.0.0</Version>
+    <ReleaseDate>2026-11-19</ReleaseDate>
+    <Default>true</Default>
+    <Essential>true</Essential>
+    <Script>installscript.qs</Script>
+</Package>
