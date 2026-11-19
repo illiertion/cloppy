@@ -789,6 +789,7 @@ void AppController::setPopupView(const QString &view)
         return;
     m_popupView = normalized;
     m_popupKind.clear();
+    qInfo() << "Cloppy: popup view =" << m_popupView;
     reloadPopup();
     Q_EMIT popupFilterChanged();
 }
