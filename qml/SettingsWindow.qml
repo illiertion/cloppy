@@ -7,7 +7,7 @@ import QtQuick.Layouts
 Window {
     id: settingsWindow
     objectName: "cloppySettings"
-    title: "Cloppy 설정"
+    title: Lang.t("Cloppy 설정", "Cloppy Settings")
     visible: app.settingsVisible
     width: Math.min(760, Screen.width - 40)
     height: Math.min(800, Screen.height - 60)
@@ -22,6 +22,7 @@ Window {
     Binding { target: Theme; property: "dark"; value: app.darkTheme }
 
     property bool dark: app.darkTheme
+    property string language: "en"
     property string swapDirection: "auto"
     property var values: ({})
     property var expansionRows: []
@@ -62,6 +63,7 @@ Window {
     function load() {
         values = app.settings
         dark = values.darkTheme !== false
+        language = values.language === "ko" ? "ko" : "en"
         quickField.setSpec(values.hotkey || "win+v")
         langField.setSpec(values.langswapHotkey || "")
         swapField.setSpec(values.selectionHotkey === undefined ? "ctrl+alt+l"
@@ -107,20 +109,20 @@ Window {
 
     function save() {
         if (!quickField.spec) {
-            errorText.text = "빠른 창 단축키를 지정해 주세요."
+            errorText.text = Lang.t("빠른 창 단축키를 지정해 주세요.", "Please set a shortcut for the quick window.")
             return
         }
         if (langField.spec && app.formatHotkey(quickField.spec) === app.formatHotkey(langField.spec)) {
-            errorText.text = "두 단축키가 같습니다. 다른 조합을 사용해 주세요."
+            errorText.text = Lang.t("두 단축키가 같습니다. 다른 조합을 사용해 주세요.", "Both shortcuts are the same. Choose a different combination.")
             return
         }
         if (swapField.spec && app.formatHotkey(quickField.spec) === app.formatHotkey(swapField.spec)) {
-            errorText.text = "선택 영역 단축키가 빠른 창 단축키와 같습니다."
+            errorText.text = Lang.t("선택 영역 단축키가 빠른 창 단축키와 같습니다.", "The selection shortcut is the same as the quick window shortcut.")
             return
         }
         if (langField.spec && swapField.spec
                 && app.formatHotkey(langField.spec) === app.formatHotkey(swapField.spec)) {
-            errorText.text = "클립보드 변환과 선택 변환이 같은 조합입니다. 하나를 바꿔 주세요."
+            errorText.text = Lang.t("클립보드 변환과 선택 변환이 같은 조합입니다. 하나를 바꿔 주세요.", "Clipboard and selection conversion use the same combination. Change one of them.")
             return
         }
 
@@ -138,6 +140,7 @@ Window {
             selectionHotkey: swapField.spec,
             swapDirection: settingsWindow.swapDirection,
             darkTheme: dark,
+            language: language,
             blockWinV: blockWinV.checked,
             disableWinHistory: disableHistory.checked,
             autostart: autostart.checked,
@@ -190,7 +193,7 @@ Window {
                 Layout.fillWidth: true
 
                 Text {
-                    text: "환경 설정"
+                    text: Lang.t("환경 설정", "Preferences")
                     color: Theme.text
                     font.family: Theme.font
                     font.pixelSize: 23
@@ -211,7 +214,7 @@ Window {
             }
 
             Text {
-                text: "단축키, 개발자 도구, 텍스트 확장, 저장 공간을 관리합니다."
+                text: Lang.t("단축키, 개발자 도구, 텍스트 확장, 저장 공간을 관리합니다.", "Manage shortcuts, developer tools, text expansion and storage.")
                 color: Theme.muted
                 font.family: Theme.font
                 font.pixelSize: 11
@@ -235,7 +238,7 @@ Window {
                     spacing: 10
 
                     Text {
-                        text: "모양"
+                        text: Lang.t("모양", "Appearance")
                         color: Theme.faint
                         font.family: Theme.font
                         font.pixelSize: 9
@@ -245,26 +248,48 @@ Window {
                     RowLayout {
                         spacing: 6
                         ChipButton {
-                            text: "다크"
+                            text: Lang.t("다크", "Dark")
                             checked: settingsWindow.dark
                             onClicked: settingsWindow.dark = true
                         }
                         ChipButton {
-                            text: "라이트"
+                            text: Lang.t("라이트", "Light")
                             checked: !settingsWindow.dark
                             onClicked: settingsWindow.dark = false
                         }
                         Item { Layout.fillWidth: true }
                         ToggleCheck {
                             id: showPreview
-                            label: "빠른 창을 넓혔을 때 미리보기 표시"
+                            label: Lang.t("빠른 창을 넓혔을 때 미리보기 표시", "Show preview when the quick window is widened")
                         }
+                    }
+
+                    RowLayout {
+                        spacing: 6
+                        Text {
+                            Layout.preferredWidth: 150
+                            text: "언어"
+                            color: Theme.muted
+                            font.family: Theme.font
+                            font.pixelSize: 11
+                        }
+                        ChipButton {
+                            text: "English"
+                            checked: settingsWindow.language === "en"
+                            onClicked: settingsWindow.language = "en"
+                        }
+                        ChipButton {
+                            text: "한국어"
+                            checked: settingsWindow.language === "ko"
+                            onClicked: settingsWindow.language = "ko"
+                        }
+                        Item { Layout.fillWidth: true }
                     }
 
                     Rectangle { Layout.fillWidth: true; implicitHeight: 1; color: Theme.border }
 
                     Text {
-                        text: "빠른 창 폴더"
+                        text: Lang.t("빠른 창 폴더", "Quick window folders")
                         color: Theme.faint
                         font.family: Theme.font
                         font.pixelSize: 9
@@ -288,8 +313,8 @@ Window {
                     Text {
                         Layout.fillWidth: true
                         text: app.folders.length > 0
-                              ? "선택한 폴더가 빠른 창에 버튼으로 표시됩니다. 여러 개를 고를 수 있습니다."
-                              : "폴더를 먼저 만들면 여기서 빠른 창에 표시할 폴더를 고를 수 있습니다."
+                              ? Lang.t("선택한 폴더가 빠른 창에 버튼으로 표시됩니다. 여러 개를 고를 수 있습니다.", "Chosen folders appear as buttons in the quick window. You can pick several.")
+                              : Lang.t("폴더를 먼저 만들면 여기서 빠른 창에 표시할 폴더를 고를 수 있습니다.", "Create a folder first to choose which folders appear in the quick window.")
                         color: Theme.faint
                         font.family: Theme.font
                         font.pixelSize: 10
@@ -299,7 +324,7 @@ Window {
                     Rectangle { Layout.fillWidth: true; implicitHeight: 1; color: Theme.border }
 
                     Text {
-                        text: "전역 단축키"
+                        text: Lang.t("전역 단축키", "Global shortcuts")
                         color: Theme.faint
                         font.family: Theme.font
                         font.pixelSize: 9
@@ -310,7 +335,7 @@ Window {
                         spacing: 8
                         Text {
                             Layout.preferredWidth: 150
-                            text: "빠른 클립 창"
+                            text: Lang.t("빠른 클립 창", "Quick clip window")
                             color: Theme.muted
                             font.family: Theme.font
                             font.pixelSize: 11
@@ -329,7 +354,7 @@ Window {
                         spacing: 8
                         Text {
                             Layout.preferredWidth: 150
-                            text: "클립보드 한/영 교환"
+                            text: Lang.t("클립보드 한/영 교환", "Convert clipboard case")
                             color: Theme.muted
                             font.family: Theme.font
                             font.pixelSize: 11
@@ -339,7 +364,7 @@ Window {
                             Layout.fillWidth: true
                         }
                         ChipButton {
-                            text: "해제"
+                            text: Lang.t("해제", "Clear")
                             onClicked: langField.setSpec("")
                         }
                     }
@@ -348,7 +373,7 @@ Window {
                         spacing: 8
                         Text {
                             Layout.preferredWidth: 150
-                            text: "선택 영역 한/영 교환"
+                            text: Lang.t("선택 영역 한/영 교환", "Convert selection case")
                             color: Theme.muted
                             font.family: Theme.font
                             font.pixelSize: 11
@@ -358,7 +383,7 @@ Window {
                             Layout.fillWidth: true
                         }
                         ChipButton {
-                            text: "해제"
+                            text: Lang.t("해제", "Clear")
                             onClicked: swapField.setSpec("")
                         }
                     }
@@ -367,23 +392,23 @@ Window {
                         spacing: 6
                         Text {
                             Layout.preferredWidth: 150
-                            text: "선택 영역 변환 방향"
+                            text: Lang.t("선택 영역 변환 방향", "Selection conversion direction")
                             color: Theme.muted
                             font.family: Theme.font
                             font.pixelSize: 11
                         }
                         ChipButton {
-                            text: "자동"
+                            text: Lang.t("자동", "Auto")
                             checked: settingsWindow.swapDirection === "auto"
                             onClicked: settingsWindow.swapDirection = "auto"
                         }
                         ChipButton {
-                            text: "→ 한글"
+                            text: Lang.t("→ 한글", "→ Hangul")
                             checked: settingsWindow.swapDirection === "ko"
                             onClicked: settingsWindow.swapDirection = "ko"
                         }
                         ChipButton {
-                            text: "→ 영문"
+                            text: Lang.t("→ 영문", "→ English")
                             checked: settingsWindow.swapDirection === "en"
                             onClicked: settingsWindow.swapDirection = "en"
                         }
@@ -392,7 +417,7 @@ Window {
 
                     Text {
                         Layout.fillWidth: true
-                        text: "자동: 한글이면 영문 자판으로, 영문이면 한글로 알아서 바꿉니다. Ctrl+Alt+L은 드래그한 선택 영역을 복사 없이 바로 바꿔 붙여넣습니다."
+                        text: Lang.t("자동: 한글이면 영문 자판으로, 영문이면 한글로 알아서 바꿉니다. Ctrl+Alt+L은 드래그한 선택 영역을 복사 없이 바로 바꿔 붙여넣습니다.", "Auto converts Hangul to the English layout and English to Hangul. Ctrl+Alt+L converts the dragged selection in place and restores the previous clipboard afterwards.")
                         color: Theme.faint
                         font.family: Theme.font
                         font.pixelSize: 10
@@ -401,8 +426,8 @@ Window {
 
                     Text {
                         Layout.fillWidth: true
-                        text: "단축키 상태 · " + app.hotkeyStatus
-                        color: app.hotkeyStatus.indexOf("실패") >= 0 ? Theme.red : Theme.faint
+                        text: Lang.t("단축키 상태 · ", "Hotkey status · ") + app.hotkeyStatus
+                        color: app.hotkeyStatus.indexOf(Lang.t("실패", "Failed")) >= 0 ? Theme.red : Theme.faint
                         font.family: Theme.font
                         font.pixelSize: 10
                         wrapMode: Text.WordWrap
@@ -411,22 +436,22 @@ Window {
                     Rectangle { Layout.fillWidth: true; implicitHeight: 1; color: Theme.border }
 
                     Text {
-                        text: "동작"
+                        text: Lang.t("동작", "Behavior")
                         color: Theme.faint
                         font.family: Theme.font
                         font.pixelSize: 9
                         font.bold: true
                     }
 
-                    ToggleCheck { id: autostart; label: "Windows 시작 시 Cloppy 자동 실행" }
-                    ToggleCheck { id: closeAfter; label: "붙여넣은 뒤 빠른 창 닫기" }
-                    ToggleCheck { id: notifications; label: "알림 표시 (복사·변환·저장 안내)" }
+                    ToggleCheck { id: autostart; label: Lang.t("Windows 시작 시 Cloppy 자동 실행", "Start Cloppy with Windows") }
+                    ToggleCheck { id: closeAfter; label: Lang.t("붙여넣은 뒤 빠른 창 닫기", "Close the quick window after pasting") }
+                    ToggleCheck { id: notifications; label: Lang.t("알림 표시 (복사·변환·저장 안내)", "Show notifications (copy, convert, save)") }
 
                     RowLayout {
                         spacing: 8
                         Text {
                             Layout.preferredWidth: 150
-                            text: "붙여넣기 지연"
+                            text: Lang.t("붙여넣기 지연", "Paste delay")
                             color: Theme.muted
                             font.family: Theme.font
                             font.pixelSize: 11
@@ -449,7 +474,7 @@ Window {
                         spacing: 8
                         Text {
                             Layout.preferredWidth: 150
-                            text: "최대 보관 개수"
+                            text: Lang.t("최대 보관 개수", "Maximum items")
                             color: Theme.muted
                             font.family: Theme.font
                             font.pixelSize: 11
@@ -466,7 +491,7 @@ Window {
                         spacing: 8
                         Text {
                             Layout.preferredWidth: 150
-                            text: "시크릿 자동 삭제"
+                            text: Lang.t("시크릿 자동 삭제", "Auto-delete secrets")
                             color: Theme.muted
                             font.family: Theme.font
                             font.pixelSize: 11
@@ -477,7 +502,7 @@ Window {
                             validator: IntValidator { bottom: 0; top: 720 }
                         }
                         Text {
-                            text: "시간 (0 = 삭제 안 함)"
+                            text: Lang.t("시간 (0 = 삭제 안 함)", "hours (0 = never)")
                             color: Theme.faint
                             font.family: Theme.font
                             font.pixelSize: 10
@@ -486,7 +511,7 @@ Window {
                     }
 
                     Text {
-                        text: "캡처 제외 앱"
+                        text: Lang.t("캡처 제외 앱", "Ignored apps")
                         color: Theme.faint
                         font.family: Theme.font
                         font.pixelSize: 9
@@ -502,7 +527,7 @@ Window {
                     Rectangle { Layout.fillWidth: true; implicitHeight: 1; color: Theme.border }
 
                     Text {
-                        text: "개발자"
+                        text: Lang.t("개발자", "Developer")
                         color: Theme.faint
                         font.family: Theme.font
                         font.pixelSize: 9
@@ -512,31 +537,31 @@ Window {
                     ToggleCheck {
                         id: programmerMode
                         Layout.fillWidth: true
-                        label: "프로그래머 모드 (터미널 전용 동작 사용)"
+                        label: Lang.t("프로그래머 모드 (터미널 전용 동작 사용)", "Programmer mode (terminal-specific behavior)")
                     }
 
                     ToggleCheck {
                         id: terminalCleanCopy
                         Layout.fillWidth: true
                         enabled: programmerMode.checked
-                        label: "터미널 복사 정리 — ANSI 색상·끝 줄바꿈/공백 제거"
+                        label: Lang.t("터미널 복사 정리 — ANSI 색상·끝 줄바꿈/공백 제거", "Clean terminal copies — strip ANSI colors and trailing newlines/spaces")
                     }
                     ToggleCheck {
                         id: terminalPasteChord
                         Layout.fillWidth: true
                         enabled: programmerMode.checked
-                        label: "터미널에서 Ctrl+Shift+V / Ctrl+Shift+C 사용"
+                        label: Lang.t("터미널에서 Ctrl+Shift+V / Ctrl+Shift+C 사용", "Use Ctrl+Shift+V / Ctrl+Shift+C in terminals")
                     }
                     ToggleCheck {
                         id: terminalPlainPaste
                         Layout.fillWidth: true
                         enabled: programmerMode.checked
-                        label: "터미널에는 항상 서식 없이 붙여넣기"
+                        label: Lang.t("터미널에는 항상 서식 없이 붙여넣기", "Always paste into terminals without formatting")
                     }
 
                     Text {
                         Layout.fillWidth: true
-                        text: "터미널 앱은 아래 목록으로 판단합니다. 각 항목은 따로 켜고 끌 수 있습니다."
+                        text: Lang.t("터미널 앱은 아래 목록으로 판단합니다. 각 항목은 따로 켜고 끌 수 있습니다.", "Terminal apps are matched against the list below. Each behavior can be toggled separately.")
                         color: Theme.faint
                         font.family: Theme.font
                         font.pixelSize: 10
@@ -547,7 +572,7 @@ Window {
                         spacing: 8
                         Text {
                             Layout.preferredWidth: 150
-                            text: "터미널 앱"
+                            text: Lang.t("터미널 앱", "Terminal apps")
                             color: Theme.muted
                             font.family: Theme.font
                             font.pixelSize: 11
@@ -566,7 +591,7 @@ Window {
                         spacing: 8
 
                         Text {
-                            text: "텍스트 확장 단축어"
+                            text: Lang.t("텍스트 확장 단축어", "Text expansion triggers")
                             color: Theme.faint
                             font.family: Theme.font
                             font.pixelSize: 9
@@ -575,13 +600,13 @@ Window {
                         Item { Layout.fillWidth: true }
                         ToggleCheck {
                             id: snippetsEnabled
-                            label: "사용"
+                            label: Lang.t("사용", "Use")
                         }
                     }
 
                     Text {
                         Layout.fillWidth: true
-                        text: "어디서든 단축어를 입력하고 Space를 누르면 문구로 바뀝니다. 예: !mail → 내 메일 주소. 클릭해서 바로 수정할 수 있습니다."
+                        text: Lang.t("어디서든 단축어를 입력하고 Space를 누르면 문구로 바뀝니다. 예: !mail → 내 메일 주소. 클릭해서 바로 수정할 수 있습니다.", "Type a trigger anywhere and press Space to replace it. Example: !mail -> my email address. Click to edit.")
                         color: Theme.faint
                         font.family: Theme.font
                         font.pixelSize: 10
@@ -633,7 +658,7 @@ Window {
                             Layout.fillWidth: true
                             spacing: 8
                             ChipButton {
-                                text: "＋ 단축어 추가"
+                                text: Lang.t("＋ 단축어 추가", "＋ Add trigger")
                                 onClicked: settingsWindow.addRow()
                             }
                             Item { Layout.fillWidth: true }
@@ -643,7 +668,7 @@ Window {
                     Rectangle { Layout.fillWidth: true; implicitHeight: 1; color: Theme.border }
 
                     Text {
-                        text: "Windows 기본 클립보드"
+                        text: Lang.t("Windows 기본 클립보드", "Windows clipboard")
                         color: Theme.faint
                         font.family: Theme.font
                         font.pixelSize: 9
@@ -653,18 +678,18 @@ Window {
                     ToggleCheck {
                         id: blockWinV
                         Layout.fillWidth: true
-                        label: "Win+V를 가로채 Cloppy를 열고 기본 클립보드 차단"
+                        label: Lang.t("Win+V를 가로채 Cloppy를 열고 기본 클립보드 차단", "Intercept Win+V and open Cloppy instead of the Windows panel")
                     }
                     ToggleCheck {
                         id: disableHistory
                         Layout.fillWidth: true
-                        label: "Windows 클립보드 기록 저장 끄기 (레지스트리)"
+                        label: Lang.t("Windows 클립보드 기록 저장 끄기 (레지스트리)", "Turn off Windows clipboard history (registry)")
                     }
 
                     Rectangle { Layout.fillWidth: true; implicitHeight: 1; color: Theme.border }
 
                     Text {
-                        text: "데이터"
+                        text: Lang.t("데이터", "Data")
                         color: Theme.faint
                         font.family: Theme.font
                         font.pixelSize: 9
@@ -682,7 +707,7 @@ Window {
 
                     Text {
                         Layout.fillWidth: true
-                        text: (app.stats.items || 0) + "개 항목 · " + (app.stats.bytesText || "0 B")
+                        text: (app.stats.items || 0) + Lang.t("개 항목 · ", " items · ") + (app.stats.bytesText || "0 B")
                         color: Theme.faint
                         font.family: Theme.font
                         font.pixelSize: 10
@@ -692,15 +717,15 @@ Window {
                         Layout.fillWidth: true
                         spacing: 8
                         ChipButton {
-                            text: "데이터 폴더 열기"
+                            text: Lang.t("데이터 폴더 열기", "Open data folder")
                             onClicked: app.openDataFolder()
                         }
                         ChipButton {
-                            text: "검색 기록 지우기"
+                            text: Lang.t("검색 기록 지우기", "Clear search history")
                             onClicked: app.clearSearches()
                         }
                         ChipButton {
-                            text: "즐겨찾기 외 삭제"
+                            text: Lang.t("즐겨찾기 외 삭제", "Delete all but favorites")
                             onClicked: confirmClear.open()
                         }
                     }
@@ -729,18 +754,18 @@ Window {
                 spacing: 8
                 Text {
                     Layout.fillWidth: true
-                    text: "텍스트 확장은 Space·Tab·Enter로 실행됩니다."
+                    text: Lang.t("텍스트 확장은 Space·Tab·Enter로 실행됩니다.", "Text expansion runs on Space, Tab or Enter.")
                     color: Theme.faint
                     font.family: Theme.font
                     font.pixelSize: 9
                     elide: Text.ElideRight
                 }
                 ChipButton {
-                    text: "취소"
+                    text: Lang.t("취소", "Cancel")
                     onClicked: app.closeSettings()
                 }
                 ChipButton {
-                    text: "저장"
+                    text: Lang.t("저장", "Save")
                     primary: true
                     onClicked: settingsWindow.save()
                 }
@@ -766,7 +791,7 @@ Window {
         contentItem: ColumnLayout {
             spacing: 10
             Text {
-                text: "클립 삭제"
+                text: Lang.t("클립 삭제", "Delete clips")
                 color: Theme.text
                 font.family: Theme.font
                 font.pixelSize: 14
@@ -774,7 +799,7 @@ Window {
             }
             Text {
                 Layout.fillWidth: true
-                text: "즐겨찾기와 고정한 코드 블록을 제외한 모든 클립을 삭제할까요?\n이 작업은 되돌릴 수 없습니다."
+                text: Lang.t("즐겨찾기와 고정한 코드 블록을 제외한 모든 클립을 삭제할까요?\n이 작업은 되돌릴 수 없습니다.", "Delete every clip except favorites and pinned snippets?\nThis cannot be undone.")
                 color: Theme.muted
                 font.family: Theme.font
                 font.pixelSize: 11
@@ -784,11 +809,11 @@ Window {
                 spacing: 8
                 Item { Layout.fillWidth: true }
                 ChipButton {
-                    text: "취소"
+                    text: Lang.t("취소", "Cancel")
                     onClicked: confirmClear.close()
                 }
                 ChipButton {
-                    text: "삭제"
+                    text: Lang.t("삭제", "Delete")
                     primary: true
                     onClicked: {
                         app.clearItems()

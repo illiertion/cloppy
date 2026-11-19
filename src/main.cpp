@@ -7,6 +7,7 @@
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include <QQuickStyle>
+#include <QSettings>
 #include <QStandardPaths>
 #include <QTextStream>
 #include <qqml.h>
@@ -17,6 +18,7 @@
 #include "fileiconprovider.h"
 #include "icons.h"
 #include "theme.h"
+#include "translate.h"
 
 static QString g_logPath;
 
@@ -44,6 +46,7 @@ int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
     QQuickStyle::setStyle(QStringLiteral("Basic"));
+    Tr::setLanguage(QSettings().value(QStringLiteral("language"), QStringLiteral("en")).toString());
 
     app.setOrganizationName(QStringLiteral("Cloppy"));
     app.setOrganizationDomain(QStringLiteral("cloppy.local"));
@@ -60,14 +63,14 @@ int main(int argc, char *argv[])
     QLockFile lock(QDir(dataDir).filePath(QStringLiteral("cloppy.lock")));
     if (!lock.tryLock(100)) {
         QMessageBox::information(nullptr, QStringLiteral("Cloppy"),
-                                 QStringLiteral("Cloppy가 이미 실행 중입니다.\n트레이 아이콘을 확인해 주세요."));
+                                 Tr::text(QStringLiteral("Cloppy가 이미 실행 중입니다.\n트레이 아이콘을 확인해 주세요."), QStringLiteral("Cloppy is already running.\nCheck the tray icon.")));
         return 0;
     }
 
     ClipStore store;
     if (!store.isOpen()) {
         QMessageBox::critical(nullptr, QStringLiteral("Cloppy"),
-                              QStringLiteral("SQLite 데이터베이스를 열 수 없습니다.\n%1")
+                              Tr::text(QStringLiteral("SQLite 데이터베이스를 열 수 없습니다.\n%1"), QStringLiteral("Could not open the SQLite database.\n%1"))
                                   .arg(store.databasePath()));
         return 1;
     }

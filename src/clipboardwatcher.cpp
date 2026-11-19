@@ -1,5 +1,6 @@
 #include "clipboardwatcher.h"
 
+#include "translate.h"
 #include <QBuffer>
 #include <QClipboard>
 #include <QCryptographicHash>
@@ -118,10 +119,10 @@ void ClipboardWatcher::check()
         payload.imagePath = path;
         payload.hash = hash;
         payload.size = bytes.size();
-        payload.title = QStringLiteral("이미지 %1×%2").arg(image.width()).arg(image.height());
+        payload.title = Tr::text(QStringLiteral("이미지 %1×%2"), QStringLiteral("Image %1×%2")).arg(image.width()).arg(image.height());
         payload.preview = QStringLiteral("%1 × %2 PNG").arg(image.width()).arg(image.height());
         if (payload.sourceApp.isEmpty())
-            payload.sourceApp = QStringLiteral("클립보드");
+            payload.sourceApp = Tr::text(QStringLiteral("클립보드"), QStringLiteral("Clips"));
         Q_EMIT captured(payload);
         return;
     }
@@ -150,7 +151,7 @@ void ClipboardWatcher::check()
             payload.hash = hash;
             payload.size = size;
             if (payload.sourceApp.isEmpty())
-                payload.sourceApp = QStringLiteral("탐색기");
+                payload.sourceApp = Tr::text(QStringLiteral("탐색기"), QStringLiteral("Explorer"));
             Q_EMIT captured(payload);
             return;
         }

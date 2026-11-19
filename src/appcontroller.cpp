@@ -1,5 +1,7 @@
 #include "appcontroller.h"
 
+#include "translate.h"
+
 #include <QAction>
 #include <QApplication>
 #include <QBuffer>
@@ -58,20 +60,20 @@ QString filesHash(const QStringList &paths)
 
 QString kindLabel(const QString &kind)
 {
-    static const QHash<QString, QString> labels = {
-        {QStringLiteral("all"), QStringLiteral("전체 클립")},
-        {QStringLiteral("favorites"), QStringLiteral("즐겨찾기")},
-        {QStringLiteral("code"), QStringLiteral("코드")},
-        {QStringLiteral("link"), QStringLiteral("링크")},
-        {QStringLiteral("image"), QStringLiteral("이미지")},
-        {QStringLiteral("files"), QStringLiteral("파일")},
-        {QStringLiteral("command"), QStringLiteral("명령어")},
-        {QStringLiteral("color"), QStringLiteral("색상")},
-        {QStringLiteral("text"), QStringLiteral("텍스트")},
-        {QStringLiteral("email"), QStringLiteral("이메일")},
-        {QStringLiteral("path"), QStringLiteral("경로")},
+    const QHash<QString, QString> labels = {
+        {QStringLiteral("all"), Tr::text(QStringLiteral("전체 클립"), QStringLiteral("All clips"))},
+        {QStringLiteral("favorites"), Tr::text(QStringLiteral("즐겨찾기"), QStringLiteral("Favorites"))},
+        {QStringLiteral("code"), Tr::text(QStringLiteral("코드"), QStringLiteral("Code"))},
+        {QStringLiteral("link"), Tr::text(QStringLiteral("링크"), QStringLiteral("Links"))},
+        {QStringLiteral("image"), Tr::text(QStringLiteral("이미지"), QStringLiteral("Images"))},
+        {QStringLiteral("files"), Tr::text(QStringLiteral("파일"), QStringLiteral("Files"))},
+        {QStringLiteral("command"), Tr::text(QStringLiteral("명령어"), QStringLiteral("Commands"))},
+        {QStringLiteral("color"), Tr::text(QStringLiteral("색상"), QStringLiteral("Colors"))},
+        {QStringLiteral("text"), Tr::text(QStringLiteral("텍스트"), QStringLiteral("Text"))},
+        {QStringLiteral("email"), Tr::text(QStringLiteral("이메일"), QStringLiteral("Email"))},
+        {QStringLiteral("path"), Tr::text(QStringLiteral("경로"), QStringLiteral("Path"))},
     };
-    return labels.value(kind, QStringLiteral("전체 클립"));
+    return labels.value(kind, Tr::text(QStringLiteral("전체 클립"), QStringLiteral("All clips")));
 }
 
 } // namespace
@@ -104,9 +106,9 @@ AppController::AppController(ClipStore *store, QObject *parent)
         Q_EMIT settingsChanged();
     });
     connect(m_hotkeys, &HotkeyManager::error, this, [this](const QString &message) {
-        m_hotkeyStatus = QStringLiteral("등록 실패");
+        m_hotkeyStatus = Tr::text(QStringLiteral("등록 실패"), QStringLiteral("Failed"));
         Q_EMIT settingsChanged();
-        notify(QStringLiteral("단축키 오류"), message);
+        notify(Tr::text(QStringLiteral("단축키 오류"), QStringLiteral("Hotkey error")), message);
     });
 
     QSettings expansionSettings;
@@ -128,8 +130,8 @@ AppController::AppController(ClipStore *store, QObject *parent)
     QTimer::singleShot(350, this, [this, firstRun]() {
         openMain();
         if (firstRun) {
-            notify(QStringLiteral("Cloppy가 시작되었습니다"),
-                   QStringLiteral("%1 로 빠른 클립 창을 열 수 있습니다. 설정에서 단축키를 바꿀 수 있어요.")
+            notify(Tr::text(QStringLiteral("Cloppy가 시작되었습니다"), QStringLiteral("Cloppy has started")),
+                   Tr::text(QStringLiteral("%1 로 빠른 클립 창을 열 수 있습니다. 설정에서 단축키를 바꿀 수 있어요."), QStringLiteral("Open the quick clip window with %1. You can change shortcuts in Settings."))
                        .arg(hotkeyText()));
         }
     });
@@ -193,6 +195,11 @@ void AppController::loadSettings()
                               QStringLiteral("1password.exe,bitwarden.exe,keepass.exe"))
                        .toString();
     m_popupFolders = settings.value(QStringLiteral("popupFolders"), QString()).toString();
+    m_language = settings.value(QStringLiteral("language"), QStringLiteral("en")).toString();
+    if (m_language != QStringLiteral("ko"))
+        m_language = QStringLiteral("en");
+    Tr::setLanguage(m_language);
+    m_hotkeyStatus = Tr::text(QStringLiteral("확인 중"), QStringLiteral("Checking…"));
     m_popupWidth = qBound(360, settings.value(QStringLiteral("popupWidth"), 398).toInt(), 1400);
     m_popupHeight = qBound(420, settings.value(QStringLiteral("popupHeight"), 500).toInt(), 1400);
 }
@@ -221,6 +228,7 @@ QVariantMap AppController::settingsMap() const
     map.insert(QStringLiteral("secretTtlHours"), m_secretTtl);
     map.insert(QStringLiteral("pasteDelayMs"), m_pasteDelay);
     map.insert(QStringLiteral("ignoreApps"), m_ignoreApps);
+    map.insert(QStringLiteral("language"), m_language);
     map.insert(QStringLiteral("popupFolders"), m_popupFolders);
     map.insert(QStringLiteral("databasePath"), m_store->databasePath());
     return map;
@@ -263,7 +271,7 @@ void AppController::applyRuntimeSettings(bool initial)
     m_watcher->setProgrammerMode(m_programmerMode && m_terminalCleanCopy);
     m_watcher->setTerminalApps(terminalApps);
     if (m_openAction)
-        m_openAction->setText(QStringLiteral("빠른 창 열기   %1").arg(hotkeyText()));
+        m_openAction->setText(Tr::text(QStringLiteral("빠른 창 열기   %1"), QStringLiteral("Open quick window   %1")).arg(hotkeyText()));
     updateTrayTooltip();
 
     if (WinUtils::clipboardHistoryEnabled() == m_disableHistory)
@@ -294,8 +302,8 @@ void AppController::saveSettings(const QVariantMap &values)
     m_swapHotkey = text("selectionHotkey", m_swapHotkey);
     if (!m_langHotkey.isEmpty() && m_langHotkey.compare(m_swapHotkey, Qt::CaseInsensitive) == 0) {
         m_langHotkey = QStringLiteral("win+alt+l");
-        notify(QStringLiteral("단축키 조정"),
-               QStringLiteral("선택 변환과 같은 조합이라 클립보드 변환을 Win+Alt+L로 되돌렸습니다."));
+        notify(Tr::text(QStringLiteral("단축키 조정"), QStringLiteral("Shortcut conflict")),
+               Tr::text(QStringLiteral("선택 변환과 같은 조합이라 클립보드 변환을 Win+Alt+L로 되돌렸습니다."), QStringLiteral("Clipboard conversion was reset to Win+Alt+L because it matched selection conversion.")));
     }
     if (!m_hotkey.isEmpty() && m_hotkey.compare(m_swapHotkey, Qt::CaseInsensitive) == 0)
         m_hotkey = QStringLiteral("win+v");
@@ -318,6 +326,12 @@ void AppController::saveSettings(const QVariantMap &values)
     m_pasteDelay = qBound(0, number("pasteDelayMs", m_pasteDelay), 2000);
     m_ignoreApps = text("ignoreApps", m_ignoreApps);
     m_popupFolders = text("popupFolders", m_popupFolders);
+    const QString previousLanguage = m_language;
+    m_language = text("language", m_language) == QStringLiteral("ko") ? QStringLiteral("ko")
+                                                                         : QStringLiteral("en");
+    Tr::setLanguage(m_language);
+    if (previousLanguage != m_language)
+        Q_EMIT languageChanged();
 
     QSettings settings;
     settings.setValue(QStringLiteral("hotkey"), m_hotkey);
@@ -342,12 +356,13 @@ void AppController::saveSettings(const QVariantMap &values)
     settings.setValue(QStringLiteral("pasteDelayMs"), m_pasteDelay);
     settings.setValue(QStringLiteral("ignoreApps"), m_ignoreApps);
     settings.setValue(QStringLiteral("popupFolders"), m_popupFolders);
+    settings.setValue(QStringLiteral("language"), m_language);
 
     applyRuntimeSettings(false);
     m_store->purge(m_maxItems, m_secretTtl);
     closeSettings();
     refreshAll();
-    notify(QStringLiteral("설정 저장됨"), QStringLiteral("변경한 설정을 적용했습니다."));
+    notify(Tr::text(QStringLiteral("설정 저장됨"), QStringLiteral("Settings saved")), Tr::text(QStringLiteral("변경한 설정을 적용했습니다."), QStringLiteral("Your changes have been applied.")));
 }
 
 QString AppController::formatHotkey(const QString &spec) const
@@ -377,30 +392,30 @@ void AppController::buildTray()
     m_tray->setToolTip(QStringLiteral("Cloppy — %1").arg(hotkeyText()));
 
     m_trayMenu = new QMenu();
-    m_openAction = m_trayMenu->addAction(QStringLiteral("빠른 창 열기"));
+    m_openAction = m_trayMenu->addAction(Tr::text(QStringLiteral("빠른 창 열기"), QStringLiteral("Open quick window")));
     connect(m_openAction, &QAction::triggered, this, &AppController::openPopup);
-    QAction *mainAction = m_trayMenu->addAction(QStringLiteral("메인 창 열기"));
+    QAction *mainAction = m_trayMenu->addAction(Tr::text(QStringLiteral("메인 창 열기"), QStringLiteral("Open main window")));
     connect(mainAction, &QAction::triggered, this, &AppController::openMain);
     QAction *swapAction = m_trayMenu->addAction(
-        QStringLiteral("선택 영역 한/영 교환   %1").arg(selectionHotkeyText()));
+        Tr::text(QStringLiteral("선택 영역 한/영 교환   %1"), QStringLiteral("Convert selection   %1")).arg(selectionHotkeyText()));
     connect(swapAction, &QAction::triggered, this, &AppController::swapSelection);
     m_trayMenu->addSeparator();
 
-    m_secretAction = m_trayMenu->addAction(QStringLiteral("시크릿 모드"));
+    m_secretAction = m_trayMenu->addAction(Tr::text(QStringLiteral("시크릿 모드"), QStringLiteral("Secret mode")));
     m_secretAction->setCheckable(true);
     connect(m_secretAction, &QAction::toggled, this, &AppController::setSecretMode);
 
-    m_pauseAction = m_trayMenu->addAction(QStringLiteral("클립보드 감시 일시정지"));
+    m_pauseAction = m_trayMenu->addAction(Tr::text(QStringLiteral("클립보드 감시 일시정지"), QStringLiteral("Pause clipboard watching")));
     m_pauseAction->setCheckable(true);
     connect(m_pauseAction, &QAction::toggled, this, &AppController::setPaused);
 
     m_trayMenu->addSeparator();
-    QAction *settingsAction = m_trayMenu->addAction(QStringLiteral("설정…"));
+    QAction *settingsAction = m_trayMenu->addAction(Tr::text(QStringLiteral("설정…"), QStringLiteral("Settings…")));
     connect(settingsAction, &QAction::triggered, this, &AppController::openSettings);
-    QAction *helpAction = m_trayMenu->addAction(QStringLiteral("사용법"));
+    QAction *helpAction = m_trayMenu->addAction(Tr::text(QStringLiteral("사용법"), QStringLiteral("Help")));
     connect(helpAction, &QAction::triggered, this, &AppController::openHelp);
     m_trayMenu->addSeparator();
-    QAction *quitAction = m_trayMenu->addAction(QStringLiteral("종료"));
+    QAction *quitAction = m_trayMenu->addAction(Tr::text(QStringLiteral("종료"), QStringLiteral("Quit")));
     connect(quitAction, &QAction::triggered, this, &AppController::quit);
 
     m_tray->setContextMenu(m_trayMenu);
@@ -419,7 +434,7 @@ void AppController::updateTrayTooltip()
         return;
     QString tooltip = QStringLiteral("Cloppy — %1").arg(hotkeyText());
     if (m_secretMode)
-        tooltip += QStringLiteral(" · 시크릿 모드");
+        tooltip += Tr::text(QStringLiteral(" · 시크릿 모드"), QStringLiteral(" · Secret mode"));
     m_tray->setToolTip(tooltip);
 }
 
@@ -730,7 +745,7 @@ void AppController::setAssetFolder(qint64 folderId)
 QString AppController::mainTitle() const
 {
     if (m_viewMode == QStringLiteral("assets"))
-        return QStringLiteral("에셋");
+        return Tr::text(QStringLiteral("에셋"), QStringLiteral("Assets"));
     if (m_viewMode == QStringLiteral("snippets")) {
         if (m_mainFolder > 0) {
             for (const FolderInfo &folder : m_store->folders()) {
@@ -738,17 +753,17 @@ QString AppController::mainTitle() const
                     return folder.name;
             }
         }
-        return QStringLiteral("코드 블록");
+        return Tr::text(QStringLiteral("코드 블록"), QStringLiteral("Snippets"));
     }
     if (m_mainSecret)
-        return QStringLiteral("시크릿 클립");
+        return Tr::text(QStringLiteral("시크릿 클립"), QStringLiteral("Secret clips"));
     if (m_mainFolder > 0) {
         const QVector<FolderInfo> folders = m_store->folders();
         for (const FolderInfo &folder : folders) {
             if (folder.id == m_mainFolder)
                 return folder.name;
         }
-        return QStringLiteral("폴더");
+        return Tr::text(QStringLiteral("폴더"), QStringLiteral("Folders"));
     }
     return kindLabel(m_mainKind);
 }
@@ -836,10 +851,10 @@ void AppController::setPinned(qint64 id, bool pinned)
     m_store->setPinned(id, pinned);
     refreshAll();
     Q_EMIT mainFilterChanged();
-    notify(pinned ? QStringLiteral("코드 블록으로 고정됨")
-                  : QStringLiteral("고정 해제됨"),
-           pinned ? QStringLiteral("자동 정리에서 제외되고 코드 블록 보기에 보관됩니다.")
-                  : QStringLiteral("이제 일반 클립으로 정리될 수 있습니다."));
+    notify(pinned ? Tr::text(QStringLiteral("코드 블록으로 고정됨"), QStringLiteral("Pinned as snippet"))
+                  : Tr::text(QStringLiteral("고정 해제됨"), QStringLiteral("Unpinned")),
+           pinned ? Tr::text(QStringLiteral("자동 정리에서 제외되고 코드 블록 보기에 보관됩니다."), QStringLiteral("It is excluded from automatic cleanup and kept in the snippet view."))
+                  : Tr::text(QStringLiteral("이제 일반 클립으로 정리될 수 있습니다."), QStringLiteral("It can now be cleaned up like a normal clip.")));
 }
 
 void AppController::setMainSecretView(bool enabled)
@@ -995,7 +1010,7 @@ void AppController::pasteAs(qint64 id, const QString &format)
         closePopup();
     refreshAll();
     schedulePaste(target);
-    notify(QStringLiteral("변환하여 붙여넣기"), format);
+    notify(Tr::text(QStringLiteral("변환하여 붙여넣기"), QStringLiteral("Paste as")), format);
 }
 
 QString AppController::transformText(const QString &text, const QString &format) const
@@ -1100,7 +1115,7 @@ void AppController::copyItem(qint64 id)
     if (m_popupVisible)
         closePopup();
     refreshAll();
-    notify(QStringLiteral("클립보드에 복사됨"), item.title);
+    notify(Tr::text(QStringLiteral("클립보드에 복사됨"), QStringLiteral("Copied to clipboard")), item.title);
 }
 
 void AppController::swapGlobalClipboard()
@@ -1111,12 +1126,12 @@ void AppController::swapGlobalClipboard()
     const QString text = clipboard->text();
     const QString swapped = LangSwap::swapDirected(text, m_swapDirection);
     if (text.isEmpty() || swapped == text) {
-        notify(QStringLiteral("한/영 교환"), QStringLiteral("변환할 한글 또는 영문 텍스트가 없습니다."));
+        notify(Tr::text(QStringLiteral("한/영 교환"), QStringLiteral("Convert case")), Tr::text(QStringLiteral("변환할 한글 또는 영문 텍스트가 없습니다."), QStringLiteral("No Hangul or English text to convert.")));
         return;
     }
     m_watcher->guard(textHash(swapped));
     clipboard->setText(swapped);
-    notify(QStringLiteral("한/영 교환"), swapped.left(80));
+    notify(Tr::text(QStringLiteral("한/영 교환"), QStringLiteral("Convert case")), swapped.left(80));
 }
 
 void AppController::swapSelection()
@@ -1176,8 +1191,8 @@ void AppController::checkSelectionSwap()
     if (WinUtils::clipboardSequence() == m_swapSequence) {
         if (m_swapTries >= 6) {
             m_swapDone = true;
-            notify(QStringLiteral("선택 영역 한/영 교환"),
-                   QStringLiteral("선택한 텍스트를 복사하지 못했습니다. 텍스트를 선택한 뒤 다시 눌러 주세요."));
+            notify(Tr::text(QStringLiteral("선택 영역 한/영 교환"), QStringLiteral("Convert selection case")),
+                   Tr::text(QStringLiteral("선택한 텍스트를 복사하지 못했습니다. 텍스트를 선택한 뒤 다시 눌러 주세요."), QStringLiteral("Could not copy the selected text. Select the text and try again.")));
         }
         return;
     }
@@ -1194,8 +1209,8 @@ void AppController::checkSelectionSwap()
             m_watcher->guard(textHash(m_swapSaved));
             clipboard->setText(m_swapSaved);
         }
-        notify(QStringLiteral("선택 영역 한/영 교환"),
-               QStringLiteral("변환할 한글/영문을 찾지 못했습니다."));
+        notify(Tr::text(QStringLiteral("선택 영역 한/영 교환"), QStringLiteral("Convert selection case")),
+               Tr::text(QStringLiteral("변환할 한글/영문을 찾지 못했습니다."), QStringLiteral("No Hangul/English text to convert.")));
         return;
     }
 
@@ -1225,7 +1240,7 @@ void AppController::checkSelectionSwap()
             clipboard->setText(saved);
         }
     });
-    notify(QStringLiteral("선택 영역 한/영 교환"), swapped.left(80));
+    notify(Tr::text(QStringLiteral("선택 영역 한/영 교환"), QStringLiteral("Convert selection case")), swapped.left(80));
 }
 
 // -------------------------------------------------------------------- actions
@@ -1259,7 +1274,7 @@ void AppController::openEdit(qint64 id)
     if (item.id == 0)
         return;
     if (item.kind == QStringLiteral("image") || item.kind == QStringLiteral("files")) {
-        notify(QStringLiteral("편집할 수 없음"), QStringLiteral("이미지와 파일 항목은 내용을 편집할 수 없습니다."));
+        notify(Tr::text(QStringLiteral("편집할 수 없음"), QStringLiteral("Cannot edit")), Tr::text(QStringLiteral("이미지와 파일 항목은 내용을 편집할 수 없습니다."), QStringLiteral("Images and file items cannot be edited.")));
         return;
     }
     m_editId = id;
@@ -1301,7 +1316,7 @@ void AppController::swapLanguage(qint64 id)
         text = item.files.join(QLatin1Char('\n'));
     const QString swapped = LangSwap::swapDirected(text, m_swapDirection);
     if (swapped.isEmpty() || swapped == text) {
-        notify(QStringLiteral("한/영 교환"), QStringLiteral("변환할 한글 또는 영문이 없습니다."));
+        notify(Tr::text(QStringLiteral("한/영 교환"), QStringLiteral("Convert case")), Tr::text(QStringLiteral("변환할 한글 또는 영문이 없습니다."), QStringLiteral("No Hangul or English to convert.")));
         return;
     }
     const bool fromPopup = m_popupVisible;
@@ -1313,7 +1328,7 @@ void AppController::swapLanguage(qint64 id)
     if (fromPopup)
         closePopup();
     refreshAll();
-    notify(QStringLiteral("한/영 교환"), swapped.left(80));
+    notify(Tr::text(QStringLiteral("한/영 교환"), QStringLiteral("Convert case")), swapped.left(80));
     if (fromPopup)
         schedulePaste(target);
 }
@@ -1332,7 +1347,7 @@ void AppController::copyCodeBlock(qint64 id)
     const QString block = QStringLiteral("```%1\n%2\n```").arg(language, body.trimmed());
     m_watcher->guard(textHash(block));
     QGuiApplication::clipboard()->setText(block);
-    notify(QStringLiteral("코드 블록 복사"), QStringLiteral("```%1 블록으로 복사했습니다.").arg(language));
+    notify(Tr::text(QStringLiteral("코드 블록 복사"), QStringLiteral("Copy snippet")), Tr::text(QStringLiteral("```%1 블록으로 복사했습니다."), QStringLiteral("Copied as a ```%1 block.")).arg(language));
 }
 
 void AppController::runTerminal(qint64 id)
@@ -1348,7 +1363,7 @@ void AppController::runTerminal(qint64 id)
     if (WinUtils::runInTerminal(command)) {
         if (m_popupVisible)
             closePopup();
-        notify(QStringLiteral("터미널에서 실행"), command.left(80));
+        notify(Tr::text(QStringLiteral("터미널에서 실행"), QStringLiteral("Run in terminal")), command.left(80));
     }
 }
 
@@ -1364,7 +1379,7 @@ void AppController::openItem(qint64 id)
     } else if (item.kind == QStringLiteral("path") && QFileInfo::exists(item.content.trimmed())) {
         WinUtils::openPath(item.content.trimmed());
     } else {
-        notify(QStringLiteral("열 수 없음"), QStringLiteral("경로나 링크 항목이 아닙니다."));
+        notify(Tr::text(QStringLiteral("열 수 없음"), QStringLiteral("Cannot open")), Tr::text(QStringLiteral("경로나 링크 항목이 아닙니다."), QStringLiteral("This is not a path or link item.")));
     }
 }
 
@@ -1431,6 +1446,20 @@ void AppController::updateExpansionBlock()
     m_hotkeys->setExpansionBlocked(m_settingsVisible || m_editVisible);
 }
 
+void AppController::setLanguage(const QString &language)
+{
+    const QString normalized = language == QStringLiteral("ko") ? QStringLiteral("ko")
+                                                                : QStringLiteral("en");
+    if (m_language == normalized)
+        return;
+    m_language = normalized;
+    Tr::setLanguage(m_language);
+    QSettings settings;
+    settings.setValue(QStringLiteral("language"), m_language);
+    Q_EMIT languageChanged();
+    Q_EMIT settingsChanged();
+}
+
 void AppController::setPopupPreview(bool visible)
 {
     if (m_showPreview == visible)
@@ -1460,9 +1489,9 @@ void AppController::setSecretMode(bool enabled)
         m_tray->setIcon(trayIcon(enabled));
     updateTrayTooltip();
     Q_EMIT secretModeChanged();
-    notify(enabled ? QStringLiteral("시크릿 모드 켜짐") : QStringLiteral("시크릿 모드 꺼짐"),
-           enabled ? QStringLiteral("이제 복사하는 내용은 숨김으로 저장됩니다.")
-                   : QStringLiteral("일반 모드로 복사 내용이 기록됩니다."));
+    notify(enabled ? Tr::text(QStringLiteral("시크릿 모드 켜짐"), QStringLiteral("Secret mode on")) : Tr::text(QStringLiteral("시크릿 모드 꺼짐"), QStringLiteral("Secret mode off")),
+           enabled ? Tr::text(QStringLiteral("이제 복사하는 내용은 숨김으로 저장됩니다."), QStringLiteral("New copies are now stored as secret."))
+                   : Tr::text(QStringLiteral("일반 모드로 복사 내용이 기록됩니다."), QStringLiteral("Copies are recorded normally again.")));
 }
 
 void AppController::toggleSecretMode()
@@ -1488,9 +1517,9 @@ void AppController::setPaused(bool paused)
         m_pauseAction->blockSignals(false);
     }
     Q_EMIT pausedChanged();
-    notify(paused ? QStringLiteral("감시 일시정지") : QStringLiteral("감시 재개"),
-           paused ? QStringLiteral("복사 내용을 기록하지 않습니다.")
-                  : QStringLiteral("다시 클립보드를 기록합니다."));
+    notify(paused ? Tr::text(QStringLiteral("감시 일시정지"), QStringLiteral("Watching paused")) : Tr::text(QStringLiteral("감시 재개"), QStringLiteral("Watching resumed")),
+           paused ? Tr::text(QStringLiteral("복사 내용을 기록하지 않습니다."), QStringLiteral("Copies are not recorded."))
+                  : Tr::text(QStringLiteral("다시 클립보드를 기록합니다."), QStringLiteral("Clipboard recording is back on.")));
 }
 
 // -------------------------------------------------------------------- folders
@@ -1511,7 +1540,7 @@ void AppController::addSnippet(const QString &title, const QString &content,
     m_store->addSnippet(title, content, language, folderId);
     refreshAll();
     Q_EMIT mainFilterChanged();
-    notify(QStringLiteral("코드 블록 저장됨"), title);
+    notify(Tr::text(QStringLiteral("코드 블록 저장됨"), QStringLiteral("Snippet saved")), title);
 }
 
 void AppController::updateSnippet(qint64 id, const QString &title, const QString &content,
@@ -1534,7 +1563,7 @@ void AppController::saveExpansions(const QVariantList &rows)
 void AppController::addAssets()
 {
     const QStringList files = QFileDialog::getOpenFileNames(
-        nullptr, QStringLiteral("에셋 추가"), QDir::homePath(), QStringLiteral("모든 파일 (*.*)"));
+        nullptr, Tr::text(QStringLiteral("에셋 추가"), QStringLiteral("Add assets")), QDir::homePath(), Tr::text(QStringLiteral("모든 파일 (*.*)"), QStringLiteral("All files (*.*)")));
     if (files.isEmpty())
         return;
     int added = 0;
@@ -1543,7 +1572,7 @@ void AppController::addAssets()
             ++added;
     }
     refreshMeta();
-    notify(QStringLiteral("에셋 추가"), QStringLiteral("%1개 파일을 추가했습니다.").arg(added));
+    notify(Tr::text(QStringLiteral("에셋 추가"), QStringLiteral("Add assets")), Tr::text(QStringLiteral("%1개 파일을 추가했습니다."), QStringLiteral("Added %1 files.")).arg(added));
 }
 
 void AppController::removeAsset(qint64 id)
@@ -1580,7 +1609,7 @@ void AppController::copyAssetPath(qint64 id)
         if (asset.id == id) {
             m_watcher->guard(textHash(asset.path));
             QGuiApplication::clipboard()->setText(asset.path);
-            notify(QStringLiteral("에셋 경로 복사"), asset.name);
+            notify(Tr::text(QStringLiteral("에셋 경로 복사"), QStringLiteral("Asset path copied")), asset.name);
             return;
         }
     }
@@ -1638,7 +1667,7 @@ void AppController::clearItems()
 {
     m_store->clearItems(true);
     refreshAll();
-    notify(QStringLiteral("클립 정리"), QStringLiteral("즐겨찾기를 제외한 클립을 삭제했습니다."));
+    notify(Tr::text(QStringLiteral("클립 정리"), QStringLiteral("Clean up clips")), Tr::text(QStringLiteral("즐겨찾기를 제외한 클립을 삭제했습니다."), QStringLiteral("Deleted clips except favorites.")));
 }
 
 void AppController::openDataFolder()

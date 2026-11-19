@@ -42,8 +42,8 @@ Rectangle {
 
                 Text {
                     Layout.fillWidth: true
-                    text: root.hasItem ? ((root.item.secret ? "🔒 " : "") + (root.item.title || "텍스트"))
-                                       : "선택된 항목 없음"
+                    text: root.hasItem ? ((root.item.secret ? "🔒 " : "") + (root.item.title || Lang.t("텍스트", "Text")))
+                                       : Lang.t("선택된 항목 없음", "Nothing selected")
                     color: Theme.text
                     font.family: Theme.font
                     font.pixelSize: 13
@@ -53,7 +53,7 @@ Rectangle {
 
                 Text {
                     Layout.fillWidth: true
-                    text: root.hasItem ? root.metaText() : "클립을 선택하면 여기에 미리보기가 표시됩니다"
+                    text: root.hasItem ? root.metaText() : Lang.t("클립을 선택하면 여기에 미리보기가 표시됩니다", "Select a clip to see a preview here")
                     color: Theme.faint
                     font.family: Theme.font
                     font.pixelSize: 10
@@ -72,7 +72,7 @@ Rectangle {
             visible: !root.hasItem
             Layout.fillWidth: true
             Layout.fillHeight: true
-            text: "미리보기"
+            text: Lang.t("미리보기", "Preview")
             color: Theme.faint
             font.family: Theme.font
             font.pixelSize: 12
@@ -239,34 +239,34 @@ Rectangle {
             spacing: 6
 
             ChipButton {
-                text: "붙여넣기"
+                text: Lang.t("붙여넣기", "Paste")
                 primary: true
                 onClicked: app.pasteItem(root.item.clipId, false)
             }
             ChipButton {
-                text: "복사"
+                text: Lang.t("복사", "Copy")
                 onClicked: app.copyItem(root.item.clipId)
             }
             ChipButton {
-                text: root.item.favorite ? "★ 즐겨찾기" : "☆ 즐겨찾기"
+                text: root.item.favorite ? Lang.t("★ 즐겨찾기", "★ Favorite") : Lang.t("☆ 즐겨찾기", "☆ Favorite")
                 checked: !!root.item.favorite
                 onClicked: app.toggleFavorite(root.item.clipId)
             }
             ChipButton {
-                text: "편집"
+                text: Lang.t("편집", "Edit")
                 onClicked: app.openEdit(root.item.clipId)
             }
             ChipButton {
-                text: "한/영"
+                text: Lang.t("한/영", "Case")
                 onClicked: app.swapLanguage(root.item.clipId)
             }
             ChipButton {
-                text: root.item.pinned ? "📌 고정 해제" : "📌 코드 블록 고정"
+                text: root.item.pinned ? Lang.t("📌 고정 해제", "📌 Unpin") : Lang.t("📌 코드 블록 고정", "📌 Pin as snippet")
                 checked: !!root.item.pinned
                 onClicked: app.setPinned(root.item.clipId, !root.item.pinned)
             }
             ChipButton {
-                text: "삭제"
+                text: Lang.t("삭제", "Delete")
                 onClicked: app.deleteItem(root.item.clipId)
             }
         }

@@ -1,0 +1,288 @@
+ files · 
+ times
+Search…
+Edit clip
+  ·  Saved changes are re-classified automatically
+Convert case
+Cancel
+Save
+Cloppy Help
+Open settings
+A Windows clipboard manager that collects everything you copy and organizes snippets and assets into folders.
+Getting started
+Press Win+V to open the quick window and Ctrl+, for settings. Everything you copy is recorded automatically; secret clips are kept separately in the lock at the top left.
+Shortcuts
+All global shortcuts can be changed or cleared in Settings, which also shows whether they are registered.
+Open or close the quick clip window. The Windows clipboard panel will not open.
+Convert the selected text in place (default).
+Convert the current clipboard contents.
+Same switching as the tabs at the top of the main window (clips / snippets / assets).
+Open settings / search.
+New folder / new snippet.
+Copy / delete the selected clip.
+Edit / convert case / favorite.
+Ctrl+1~9 (popup)
+Paste the 1st-9th clip directly from the popup.
+Quick window (Win+V)
+The default size is 398 x 500 and you can resize it by dragging the right edge, bottom edge or corner; the size is remembered. Use the [Clips] [Snippets] [Assets] buttons at the top to switch views. Folders chosen in Settings appear as folder buttons, and clicking an asset copies its path.
+Clip view
+Switch views with the [Clips] [Snippets] [Assets] tabs at the top of the main window. A single click selects and shows a preview on the right; a double click copies it. In the Win+V popup a single click pastes into the previous window.
+Right-click -> Paste as: JSON (compact/pretty), HTML (<br> line breaks), Markdown code block, single line, quoted string, Base64.
+Right-click -> Move to folder to organize clips.
+Pinning as a snippet keeps the item out of automatic cleanup and also stores it in the snippet view. Pinned items stay in the clip list.
+Snippets (Ctrl+2)
+Keep code snippets with a title and language in folders. They are managed separately from history and are never removed by auto-cleanup or Delete all but favorites.
+Create one with + New snippet or Ctrl+Shift+N.
+Press F2 or right-click -> Edit snippet to change its title, language or folder.
+Pinning a normal clip also shows it in the snippet view.
+Assets (Ctrl+3)
+Copy images, fonts and code files into the app data folder. Organize them with asset folders and subfolders, and preview, open, copy paths or delete them.
+Text expansion
+Triggers added in Settings -> Text expansion are replaced after Space (or Tab/Enter), both in other apps and inside Cloppy windows. Default example: !mail -> me@example.com. Korean triggers (!메일) work too. Edit or remove entries, or turn the whole feature off.
+Developer mode
+Turn on programmer mode in Settings -> Developer and enable each behavior separately.
+Clean terminal copies: strip ANSI color codes and trailing newlines/spaces.
+Use Ctrl+Shift+V / Ctrl+Shift+C in terminals such as Windows Terminal, cmd and PowerShell.
+Always paste into terminals without formatting.
+The terminal app list can be edited.
+Conversion direction
+Choose the direction in Settings -> Global shortcuts. Auto converts Hangul to the English layout and vice versa; -> Hangul always converts one way (dkssud -> 안녕) and -> English the other (안녕 -> dkssud).
+Folders
+Create folders with + next to the folder header or Ctrl+N. Right-click a folder to create a subfolder, edit its name or color, move it, or delete it. Deleting a folder keeps its items and only removes them from the folder.
+Folders chosen in Settings -> Quick window folders appear as buttons in the Win+V window so you can view just that folder. Choose several; none are shown by default.
+Troubleshooting
+If the Windows clipboard panel opens instead of Cloppy, close other clipboard tools and check that Block Win+V is enabled in Settings. Win+V sent from a mouse macro also opens Cloppy.
+If a shortcut does not work, check Hotkey status in Settings and make sure no other app uses the same combination.
+Pasting into apps running as administrator may be restricted.
+If conversion does nothing, make sure text is actually selected (dragged). With no selection there is nothing to copy.
+Storage
+%APPDATA%\\Cloppy\\Cloppy\\cloppy.db (history)\n%APPDATA%\\Cloppy\\Cloppy\\images (images)\n%APPDATA%\\Cloppy\\Cloppy\\assets (assets)\n%APPDATA%\\Cloppy\\Cloppy\\cloppy.log (log)
+Click, then press the shortcut
+Cloppy — Clipboard Manager
+  ·  Open anywhere
+🔒  Secret clips
+⚙  Settings
+?  Help
+Smart clips
+All
+Favorites
+Code
+Links
+Images
+Files
+Commands
+Colors
+Text
+Asset folders
+＋ Snippet
+Right-click a folder · name · color · organize
+ items
+Search…  content · language · file name
+＋ Add assets
+＋ New snippet
+Recent searches
+Clips
+Snippets
+Assets
+Copy selection
+Edit snippet
+Edit
+Pin
+Snippets are protected from cleanup and auto-delete
+Click to select · Double-click to copy · 
+ saved
+No results
+Snippets you create are stored in folders
+Everything you copy will appear here
+Add assets to keep images, fonts and code files
+No asset selected
+Select an asset on the left
+Open
+Copy path
+Delete
+No search history
+Paste
+Paste without formatting
+Paste as
+JSON (compact)
+JSON (pretty)
+HTML (<br> line breaks)
+Markdown code block
+Single line
+Quoted string
+Copy
+Toggle favorite
+Unpin
+Pin as snippet
+Edit snippet…
+Edit…
+Move to folder
+Remove from folder
+New subfolder
+Edit name · color
+Move to another folder
+Move to top level
+Delete folder
+No folders
+Edit folder
+New folder
+Parent folder · 
+Folder name
+New snippet
+Save it with a title and language. Snippets are never removed by automatic cleanup.
+Title (e.g. deploy script)
+Language (python)
+Paste your code
+' Delete this folder?\nSubfolders are deleted too. Items are kept and only removed from the folder.
+Secret
+Search…  asset name
+Search…  snippets
+Search…  content, language, files
+Clips
+Commands
+All folders
+No pinned snippets\nPin a clip in the main window
+Nothing recorded yet\nAnything you copy will appear here
+No assets saved\nAdd them in the Assets tab
+Click = copy asset path
+Click = paste snippet · Del to delete
+Click = paste · Enter to paste · Del to delete
+Recent
+Case
+Full window
+Nothing selected
+Select a clip to see a preview here
+Preview
+★ Favorite
+☆ Favorite
+📌 Unpin
+📌 Pin as snippet
+Cloppy Settings
+Please set a shortcut for the quick window.
+Both shortcuts are the same. Choose a different combination.
+The selection shortcut is the same as the quick window shortcut.
+Clipboard and selection conversion use the same combination. Change one of them.
+Preferences
+Manage shortcuts, developer tools, text expansion and storage.
+Appearance
+Dark
+Light
+Show preview when the quick window is widened
+Quick window folders
+Chosen folders appear as buttons in the quick window. You can pick several.
+Create a folder first to choose which folders appear in the quick window.
+Global shortcuts
+Quick clip window
+Convert clipboard case
+Clear
+Convert selection case
+Selection conversion direction
+Auto
+→ Hangul
+→ English
+Auto converts Hangul to the English layout and English to Hangul. Ctrl+Alt+L converts the dragged selection in place and restores the previous clipboard afterwards.
+Hotkey status · 
+Failed
+Behavior
+Start Cloppy with Windows
+Close the quick window after pasting
+Show notifications (copy, convert, save)
+Paste delay
+Maximum items
+Auto-delete secrets
+hours (0 = never)
+Ignored apps
+Developer
+Programmer mode (terminal-specific behavior)
+Clean terminal copies — strip ANSI colors and trailing newlines/spaces
+Use Ctrl+Shift+V / Ctrl+Shift+C in terminals
+Always paste into terminals without formatting
+Terminal apps are matched against the list below. Each behavior can be toggled separately.
+Terminal apps
+Text expansion triggers
+Use
+Type a trigger anywhere and press Space to replace it. Example: !mail -> my email address. Click to edit.
+＋ Add trigger
+Windows clipboard
+Intercept Win+V and open Cloppy instead of the Windows panel
+Turn off Windows clipboard history (registry)
+Data
+ items · 
+Open data folder
+Clear search history
+Delete all but favorites
+Text expansion runs on Space, Tab or Enter.
+Delete clips
+Delete every clip except favorites and pinned snippets?\nThis cannot be undone.
+All clips
+Email
+Path
+Failed
+Hotkey error
+Cloppy has started
+Open the quick clip window with %1. You can change shortcuts in Settings.
+Open quick window   %1
+Shortcut conflict
+Clipboard conversion was reset to Win+Alt+L because it matched selection conversion.
+Settings saved
+Your changes have been applied.
+Open quick window
+Open main window
+Convert selection   %1
+Secret mode
+Pause clipboard watching
+Settings…
+Help
+Quit
+ · Secret mode
+Secret clips
+Pinned as snippet
+Unpinned
+It is excluded from automatic cleanup and kept in the snippet view.
+It can now be cleaned up like a normal clip.
+Copied to clipboard
+No Hangul or English text to convert.
+Could not copy the selected text. Select the text and try again.
+No Hangul/English text to convert.
+Cannot edit
+Images and file items cannot be edited.
+No Hangul or English to convert.
+Copy snippet
+Copied as a ```%1 block.
+Run in terminal
+Cannot open
+This is not a path or link item.
+Secret mode on
+Secret mode off
+New copies are now stored as secret.
+Copies are recorded normally again.
+Watching paused
+Watching resumed
+Copies are not recorded.
+Clipboard recording is back on.
+Snippet saved
+Add assets
+All files (*.*)
+Added %1 files.
+Asset path copied
+Clean up clips
+Deleted clips except favorites.
+Empty text
+Image %1×%2
+Explorer
+%1 and %2 more
+Untitled
+SQL
+\n… (preview limited to 40,000 characters)
+Could not register the global shortcut. Check whether another app uses the same combination.
+Quick window
+Quick window (hook)
+Clipboard conversion
+Selection conversion
+Running in hook mode
+Registered: 
+Cloppy is already running.\nCheck the tray icon.
+Could not open the SQLite database.\n%1
+Just now
+%1 min ago
+Yesterday

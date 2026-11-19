@@ -1,5 +1,6 @@
 #include "classifier.h"
 
+#include "translate.h"
 #include "types.h"
 
 #include <QFileInfo>
@@ -130,13 +131,13 @@ Result classify(const QString &text)
     const bool singleLine = !trimmed.contains(QLatin1Char('\n'));
 
     if (trimmed.isEmpty()) {
-        result.title = QStringLiteral("빈 텍스트");
+        result.title = Tr::text(QStringLiteral("빈 텍스트"), QStringLiteral("Empty text"));
         return result;
     }
 
     if (singleLine && kColor.match(trimmed).hasMatch()) {
         result.kind = QStringLiteral("color");
-        result.tags = QStringLiteral("색상");
+        result.tags = Tr::text(QStringLiteral("색상"), QStringLiteral("Colors"));
     } else if (singleLine && kUrl.match(trimmed).hasMatch()) {
         result.kind = QStringLiteral("link");
         QUrl url(trimmed.contains(QStringLiteral("://")) ? trimmed : QStringLiteral("http://") + trimmed);
@@ -144,10 +145,10 @@ Result classify(const QString &text)
             result.tags = url.host();
     } else if (singleLine && kEmail.match(trimmed).hasMatch()) {
         result.kind = QStringLiteral("email");
-        result.tags = QStringLiteral("이메일");
+        result.tags = Tr::text(QStringLiteral("이메일"), QStringLiteral("Email"));
     } else if (singleLine && kPath.match(trimmed).hasMatch()) {
         result.kind = QStringLiteral("path");
-        result.tags = QStringLiteral("경로");
+        result.tags = Tr::text(QStringLiteral("경로"), QStringLiteral("Path"));
         QString ext = QFileInfo(trimmed).suffix();
         if (!ext.isEmpty())
             result.tags += QStringLiteral(",.") + ext;
@@ -158,7 +159,7 @@ Result classify(const QString &text)
                 || trimmed.startsWith(QStringLiteral("Get-"), Qt::CaseInsensitive)
             ? QStringLiteral("powershell")
             : QStringLiteral("bash");
-        result.tags = QStringLiteral("명령어");
+        result.tags = Tr::text(QStringLiteral("명령어"), QStringLiteral("Commands"));
     } else if (validJson(trimmed)) {
         result.kind = QStringLiteral("code");
         result.language = QStringLiteral("json");
@@ -177,7 +178,7 @@ Result classify(const QString &text)
 
     result.title = firstLine(content, 120);
     if (result.title.isEmpty())
-        result.title = QStringLiteral("텍스트");
+        result.title = Tr::text(QStringLiteral("텍스트"), QStringLiteral("Text"));
     result.preview = collapseWhitespace(content, 240);
     return result;
 }

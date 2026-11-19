@@ -13,6 +13,7 @@ Windows용 클립보드 매니저. 복사한 모든 내용을 모으고, 코드 
 - **한/영 변환**: `Ctrl+Alt+L` 선택 영역 즉시 변환, `Win+Alt+L` 클립보드 변환
 - **개발자 모드**: 터미널 복사 정리(ANSI 제거), 터미널 붙여넣기 단축키, 서식 없이 붙여넣기
 - **변환하여 붙여넣기**: JSON 압축/정리, HTML 줄바꿈, Markdown 코드블록, 한 줄로, 따옴표, Base64
+- **영어/한국어 UI**: 기본은 English, 설정 → 모양 → 언어에서 한국어로 전환 (즉시 적용)
 - **앱 내 사용법**: 사이드바 `? 사용법`, `F1`, 트레이 메뉴
 
 ## 요구 사항
@@ -72,6 +73,10 @@ IFW 경로가 다르면 `installer\build-installer.bat`의 `IFW_DIR`을 수정�
 %APPDATA%\Cloppy\Cloppy\assets\        에셋 파일
 %APPDATA%\Cloppy\Cloppy\cloppy.log     로그
 ```
+
+## 언어
+
+UI 기본 언어는 English이며, 설정 → 모양 → Language에서 한국어로 바꿀 수 있습니다. 언어는 QSettings(`language`)에 저장되고, QML은 `Lang.t(한국어, English)` 싱글턴으로, C++ 알림은 `Tr::text()`로 번역합니다.
 
 ## 구조
 

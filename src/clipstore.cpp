@@ -1,5 +1,6 @@
 #include "clipstore.h"
 
+#include "translate.h"
 #include <QCryptographicHash>
 #include <QDateTime>
 #include <QDebug>
@@ -245,18 +246,18 @@ qint64 ClipStore::addCapture(const CapturePayload &payload, bool secret, const Q
             title = info.isDir() ? QStringLiteral("📁 %1").arg(info.fileName()) : info.fileName();
             language = Classifier::languageForPath(files.first());
         } else if (!files.isEmpty()) {
-            title = QStringLiteral("%1 외 %2개").arg(QFileInfo(files.first()).fileName()).arg(files.size() - 1);
+            title = Tr::text(QStringLiteral("%1 외 %2개"), QStringLiteral("%1 and %2 more")).arg(QFileInfo(files.first()).fileName()).arg(files.size() - 1);
         } else {
-            title = QStringLiteral("파일");
+            title = Tr::text(QStringLiteral("파일"), QStringLiteral("Files"));
         }
         preview = files.join(QLatin1Char('\n'));
-        tags = QStringLiteral("파일");
+        tags = Tr::text(QStringLiteral("파일"), QStringLiteral("Files"));
     } else if (kind == QStringLiteral("image")) {
         if (title.isEmpty())
-            title = QStringLiteral("이미지");
+            title = Tr::text(QStringLiteral("이미지"), QStringLiteral("Images"));
         if (preview.isEmpty())
-            preview = QStringLiteral("이미지");
-        tags = QStringLiteral("이미지");
+            preview = Tr::text(QStringLiteral("이미지"), QStringLiteral("Images"));
+        tags = Tr::text(QStringLiteral("이미지"), QStringLiteral("Images"));
     }
 
     const QString hash = payload.hash.isEmpty()
@@ -643,7 +644,7 @@ qint64 ClipStore::addFolder(const QString &name, const QString &color, qint64 pa
     QSqlQuery query(m_db);
     query.prepare(QStringLiteral(
         "INSERT INTO folders(name, color, parent_id, scope, created_at) VALUES(?,?,?,?,?)"));
-    query.addBindValue(name.trimmed().isEmpty() ? QStringLiteral("새 폴더") : name.trimmed());
+    query.addBindValue(name.trimmed().isEmpty() ? Tr::text(QStringLiteral("새 폴더"), QStringLiteral("New folder")) : name.trimmed());
     query.addBindValue(color);
     if (parentId > 0)
         query.addBindValue(parentId);
@@ -660,7 +661,7 @@ void ClipStore::renameFolder(qint64 id, const QString &name)
 {
     QSqlQuery query(m_db);
     query.prepare(QStringLiteral("UPDATE folders SET name = ? WHERE id = ?"));
-    query.addBindValue(name.trimmed().isEmpty() ? QStringLiteral("폴더") : name.trimmed());
+    query.addBindValue(name.trimmed().isEmpty() ? Tr::text(QStringLiteral("폴더"), QStringLiteral("Folders")) : name.trimmed());
     query.addBindValue(id);
     query.exec();
 }
@@ -705,7 +706,7 @@ void ClipStore::setTitle(qint64 id, const QString &title)
 {
     QSqlQuery query(m_db);
     query.prepare(QStringLiteral("UPDATE items SET title = ? WHERE id = ?"));
-    query.addBindValue(title.trimmed().isEmpty() ? QStringLiteral("제목 없음") : title.trimmed());
+    query.addBindValue(title.trimmed().isEmpty() ? Tr::text(QStringLiteral("제목 없음"), QStringLiteral("Untitled")) : title.trimmed());
     query.addBindValue(id);
     query.exec();
 }
@@ -740,7 +741,7 @@ qint64 ClipStore::addSnippet(const QString &title, const QString &content,
         " VALUES('code',?,?,?,'','',?,0,0,1,'코드 블록',?,?,?,?,1,?,?)"));
     query.addBindValue(body);
     query.addBindValue(title.trimmed().isEmpty()
-                           ? (firstLine(body, 80).isEmpty() ? QStringLiteral("새 코드 블록")
+                           ? (firstLine(body, 80).isEmpty() ? Tr::text(QStringLiteral("새 코드 블록"), QStringLiteral("New snippet"))
                                                             : firstLine(body, 80))
                            : title.trimmed());
     query.addBindValue(collapseWhitespace(body, 240));
@@ -770,7 +771,7 @@ void ClipStore::updateSnippet(qint64 id, const QString &title, const QString &co
     query.prepare(QStringLiteral(
         "UPDATE items SET title = ?, content = ?, preview = ?, language = ?, tags = ?,"
         " size = ?, folder_id = ?, last_used_at = ? WHERE id = ?"));
-    query.addBindValue(title.trimmed().isEmpty() ? QStringLiteral("코드 블록") : title.trimmed());
+    query.addBindValue(title.trimmed().isEmpty() ? Tr::text(QStringLiteral("코드 블록"), QStringLiteral("Snippets")) : title.trimmed());
     query.addBindValue(body);
     query.addBindValue(collapseWhitespace(body, 240));
     query.addBindValue(lang);
@@ -935,7 +936,7 @@ void ClipStore::renameAsset(qint64 id, const QString &name)
 {
     QSqlQuery query(m_db);
     query.prepare(QStringLiteral("UPDATE assets SET name = ? WHERE id = ?"));
-    query.addBindValue(name.trimmed().isEmpty() ? QStringLiteral("에셋") : name.trimmed());
+    query.addBindValue(name.trimmed().isEmpty() ? Tr::text(QStringLiteral("에셋"), QStringLiteral("Assets")) : name.trimmed());
     query.addBindValue(id);
     query.exec();
 }

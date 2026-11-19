@@ -1,5 +1,6 @@
 #include "hotkeymanager.h"
 
+#include "translate.h"
 #include <QDebug>
 #include <QStringList>
 
@@ -210,7 +211,7 @@ void HotkeyManager::start(const QString &menuHotkey, const QString &langHotkey,
 
     if (future.wait_for(std::chrono::seconds(2)) != std::future_status::ready || !future.get()) {
         qWarning() << "Cloppy: failed to install keyboard hook";
-        Q_EMIT error(QStringLiteral("전역 단축키를 등록하지 못했습니다. 다른 앱이 같은 조합을 쓰고 있는지 확인해 주세요."));
+        Q_EMIT error(Tr::text(QStringLiteral("전역 단축키를 등록하지 못했습니다. 다른 앱이 같은 조합을 쓰고 있는지 확인해 주세요."), QStringLiteral("Could not register the global shortcut. Check whether another app uses the same combination.")));
     } else {
         qInfo() << "Cloppy: global hotkeys ready";
     }
@@ -240,16 +241,16 @@ void HotkeyManager::registerHotkeys()
 
     QStringList ready;
     if (m_menuRegistered)
-        ready << QStringLiteral("빠른 창");
+        ready << Tr::text(QStringLiteral("빠른 창"), QStringLiteral("Quick window"));
     else if (m_hook.load())
-        ready << QStringLiteral("빠른 창(후킹)");
+        ready << Tr::text(QStringLiteral("빠른 창(후킹)"), QStringLiteral("Quick window (hook)"));
     if (m_langRegistered)
-        ready << QStringLiteral("클립보드 변환");
+        ready << Tr::text(QStringLiteral("클립보드 변환"), QStringLiteral("Clipboard conversion"));
     if (m_swapRegistered)
-        ready << QStringLiteral("선택 변환");
+        ready << Tr::text(QStringLiteral("선택 변환"), QStringLiteral("Selection conversion"));
     const QString text = ready.isEmpty()
-        ? QStringLiteral("후킹 모드로 동작 중")
-        : QStringLiteral("등록됨: ") + ready.join(QStringLiteral(", "));
+        ? Tr::text(QStringLiteral("후킹 모드로 동작 중"), QStringLiteral("Running in hook mode"))
+        : Tr::text(QStringLiteral("등록됨: "), QStringLiteral("Registered: ")) + ready.join(QStringLiteral(", "));
     Q_EMIT status(text);
     qInfo() << "Cloppy hotkeys:" << text;
 }

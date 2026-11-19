@@ -8,7 +8,7 @@ TextField {
     readOnly: true
     selectByMouse: false
     horizontalAlignment: Text.AlignLeft
-    placeholderText: "클릭한 뒤 단축키를 누르세요"
+    placeholderText: Lang.t("클릭한 뒤 단축키를 누르세요", "Click, then press the shortcut")
     color: Theme.text
     font.family: Theme.font
     font.pixelSize: 12

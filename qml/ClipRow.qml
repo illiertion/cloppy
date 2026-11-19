@@ -104,7 +104,7 @@ Item {
         Text {
             width: parent.width
             text: root.kind === "files"
-                  ? (root.filesCount + "개 파일 · " + root.previewLine)
+                  ? (root.filesCount + Lang.t("개 파일 · ", " files · ") + root.previewLine)
                   : (root.language ? "[" + root.language + "] " + root.previewLine : root.previewLine)
             color: Theme.muted
             font.family: Theme.font
@@ -122,7 +122,7 @@ Item {
 
         Text {
             anchors.right: parent.right
-            text: root.timeText + (root.useCount > 1 ? " · " + root.useCount + "회" : "")
+            text: root.timeText + (root.useCount > 1 ? " · " + root.useCount + Lang.t("회", " times") : "")
             color: Theme.faint
             font.family: Theme.font
             font.pixelSize: 10

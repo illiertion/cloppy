@@ -7,7 +7,7 @@ import QtQuick.Layouts
 Window {
     id: win
     objectName: "cloppyMain"
-    title: "Cloppy — 클립보드 매니저"
+    title: Lang.t("Cloppy — 클립보드 매니저", "Cloppy — Clipboard Manager")
     visible: app.mainVisible
     width: Math.min(1240, Screen.width - 40)
     height: Math.min(800, Screen.height - 80)
@@ -21,6 +21,30 @@ Window {
 
     readonly property bool snippetMode: app.viewMode === "snippets"
     readonly property bool assetMode: app.viewMode === "assets"
+
+    property var viewTabs: {
+        var current = Lang.language
+        return [
+            { key: "clips", icon: "📋", label: Lang.t("클립보드", "Clips") },
+            { key: "snippets", icon: "⌘", label: Lang.t("코드 블록", "Snippets") },
+            { key: "assets", icon: "🗂", label: Lang.t("에셋", "Assets") }
+        ]
+    }
+
+    property var smartFilters: {
+        var current = Lang.language
+        return [
+            { key: "all", label: Lang.t("전체", "All") },
+            { key: "favorites", label: Lang.t("즐겨찾기", "Favorites") },
+            { key: "code", label: Lang.t("코드", "Code") },
+            { key: "link", label: Lang.t("링크", "Links") },
+            { key: "image", label: Lang.t("이미지", "Images") },
+            { key: "files", label: Lang.t("파일", "Files") },
+            { key: "command", label: Lang.t("명령어", "Commands") },
+            { key: "color", label: Lang.t("색상", "Colors") },
+            { key: "text", label: Lang.t("텍스트", "Text") }
+        ]
+    }
 
     property var currentItem: {
         var total = mainModel.count
@@ -211,7 +235,7 @@ Window {
                     }
 
                     Text {
-                        text: app.hotkeyText + "  ·  어디서든 열기"
+                        text: app.hotkeyText + Lang.t("  ·  어디서든 열기", "  ·  Open anywhere")
                         color: Theme.faint
                         font.family: Theme.font
                         font.pixelSize: 10
@@ -233,7 +257,7 @@ Window {
                             anchors.rightMargin: 10
 
                             Text {
-                                text: "🔒  시크릿 클립"
+                                text: Lang.t("🔒  시크릿 클립", "🔒  Secret clips")
                                 color: app.mainSecret ? Theme.red : Theme.muted
                                 font.family: Theme.font
                                 font.pixelSize: 12
@@ -271,7 +295,7 @@ Window {
                             anchors.left: parent.left
                             anchors.leftMargin: 10
                             anchors.verticalCenter: parent.verticalCenter
-                            text: "⚙  설정"
+                            text: Lang.t("⚙  설정", "⚙  Settings")
                             color: Theme.muted
                             font.family: Theme.font
                             font.pixelSize: 12
@@ -297,7 +321,7 @@ Window {
                             anchors.left: parent.left
                             anchors.leftMargin: 10
                             anchors.verticalCenter: parent.verticalCenter
-                            text: "?  사용법"
+                            text: Lang.t("?  사용법", "?  Help")
                             color: Theme.muted
                             font.family: Theme.font
                             font.pixelSize: 12
@@ -313,7 +337,7 @@ Window {
                     Text {
                         Layout.topMargin: 6
                         visible: !win.assetMode
-                        text: "스마트 클립"
+                        text: Lang.t("스마트 클립", "Smart clips")
                         color: Theme.faint
                         font.family: Theme.font
                         font.pixelSize: 9
@@ -329,27 +353,17 @@ Window {
                         rowSpacing: 5
 
                         Repeater {
-                            model: ListModel {
-                                ListElement { key: "all"; label: "전체" }
-                                ListElement { key: "favorites"; label: "즐겨찾기" }
-                                ListElement { key: "code"; label: "코드" }
-                                ListElement { key: "link"; label: "링크" }
-                                ListElement { key: "image"; label: "이미지" }
-                                ListElement { key: "files"; label: "파일" }
-                                ListElement { key: "command"; label: "명령어" }
-                                ListElement { key: "color"; label: "색상" }
-                                ListElement { key: "text"; label: "텍스트" }
-                            }
+                            model: win.smartFilters
 
                             Rectangle {
                                 Layout.fillWidth: true
                                 Layout.preferredHeight: 29
                                 implicitHeight: 29
                                 radius: 8
-                                color: win.isSmartActive(model.key)
+                                color: win.isSmartActive(modelData.key)
                                        ? Theme.accentSoft
                                        : (smartHover.hovered ? Theme.surface2 : "transparent")
-                                border.width: win.isSmartActive(model.key) ? 1 : 0
+                                border.width: win.isSmartActive(modelData.key) ? 1 : 0
                                 border.color: Qt.rgba(Theme.accent.r, Theme.accent.g, Theme.accent.b, 0.5)
 
                                 HoverHandler { id: smartHover }
@@ -364,20 +378,20 @@ Window {
                                         width: 5
                                         height: 5
                                         radius: 2.5
-                                        color: Theme.kindColor(model.key === "all" ? "text"
-                                                              : model.key === "favorites" ? "link"
-                                                              : model.key)
+                                        color: Theme.kindColor(modelData.key === "all" ? "text"
+                                                              : modelData.key === "favorites" ? "link"
+                                                              : modelData.key)
                                     }
                                     Text {
                                         Layout.fillWidth: true
-                                        text: model.label
-                                        color: win.isSmartActive(model.key) ? Theme.text : Theme.muted
+                                        text: modelData.label
+                                        color: win.isSmartActive(modelData.key) ? Theme.text : Theme.muted
                                         font.family: Theme.font
                                         font.pixelSize: 11
                                         elide: Text.ElideRight
                                     }
                                     Text {
-                                        text: win.smartCount(model.key) > 0 ? win.smartCount(model.key) : ""
+                                        text: win.smartCount(modelData.key) > 0 ? win.smartCount(modelData.key) : ""
                                         color: Theme.faint
                                         font.family: Theme.font
                                         font.pixelSize: 9
@@ -390,7 +404,7 @@ Window {
                                     onClicked: {
                                         if (win.snippetMode)
                                             app.setViewMode("clips")
-                                        app.setMainKind(model.key)
+                                        app.setMainKind(modelData.key)
                                     }
                                 }
                             }
@@ -403,7 +417,7 @@ Window {
                         spacing: 6
 
                         Text {
-                            text: win.assetMode ? "에셋 폴더" : "폴더"
+                            text: win.assetMode ? Lang.t("에셋 폴더", "Asset folders") : Lang.t("폴더", "Folders")
                             color: Theme.faint
                             font.family: Theme.font
                             font.pixelSize: 9
@@ -412,7 +426,7 @@ Window {
                         }
                         Item { Layout.fillWidth: true }
                         Text {
-                            text: win.snippetMode ? "＋ 코드" : "+"
+                            text: win.snippetMode ? Lang.t("＋ 코드", "＋ Snippet") : "+"
                             color: Theme.muted
                             font.pixelSize: win.snippetMode ? 10 : 17
                             padding: 2
@@ -509,8 +523,8 @@ Window {
 
                     Text {
                         Layout.fillWidth: true
-                        text: win.assetMode ? "폴더 우클릭 · 이름 · 색상 · 정리"
-                                            : "폴더 우클릭 · 이름 · 색상 · 정리"
+                        text: win.assetMode ? Lang.t("폴더 우클릭 · 이름 · 색상 · 정리", "Right-click a folder · name · color · organize")
+                                            : Lang.t("폴더 우클릭 · 이름 · 색상 · 정리", "Right-click a folder · name · color · organize")
                         color: Theme.faint
                         font.family: Theme.font
                         font.pixelSize: 9
@@ -530,6 +544,83 @@ Window {
                     anchors.topMargin: 18
                     anchors.bottomMargin: 12
                     spacing: 11
+
+                    Item {
+                        Layout.fillWidth: true
+                        Layout.leftMargin: -20
+                        Layout.rightMargin: -20
+                        implicitHeight: 42
+
+                        Rectangle {
+                            anchors.fill: parent
+                            color: Theme.bg
+                        }
+
+                        Rectangle {
+                            anchors.left: parent.left
+                            anchors.right: parent.right
+                            anchors.bottom: parent.bottom
+                            height: 1
+                            color: Theme.border
+                        }
+
+                        RowLayout {
+                            anchors.fill: parent
+                            anchors.leftMargin: 14
+                            anchors.rightMargin: 14
+                            spacing: 2
+
+                            Repeater {
+                                model: win.viewTabs
+
+                                Rectangle {
+                                    id: topTab
+                                    required property var modelData
+                                    Layout.fillHeight: true
+                                    implicitWidth: topTabRow.implicitWidth + 30
+                                    color: topTabHover.hovered ? Theme.surface2 : "transparent"
+
+                                    HoverHandler { id: topTabHover }
+
+                                    Rectangle {
+                                        visible: app.viewMode === topTab.modelData.key
+                                        anchors.bottom: parent.bottom
+                                        anchors.horizontalCenter: parent.horizontalCenter
+                                        width: parent.width - 14
+                                        height: 2
+                                        radius: 1
+                                        color: Theme.accent
+                                    }
+
+                                    RowLayout {
+                                        id: topTabRow
+                                        anchors.centerIn: parent
+                                        spacing: 8
+
+                                        Text {
+                                            text: topTab.modelData.icon
+                                            font.pixelSize: 13
+                                        }
+                                        Text {
+                                            text: topTab.modelData.label
+                                            color: app.viewMode === topTab.modelData.key ? Theme.text : Theme.muted
+                                            font.family: Theme.font
+                                            font.pixelSize: 13
+                                            font.bold: app.viewMode === topTab.modelData.key
+                                        }
+                                    }
+
+                                    MouseArea {
+                                        anchors.fill: parent
+                                        cursorShape: Qt.PointingHandCursor
+                                        onClicked: app.setViewMode(topTab.modelData.key)
+                                    }
+                                }
+                            }
+
+                            Item { Layout.fillWidth: true }
+                        }
+                    }
 
                     RowLayout {
                         Layout.fillWidth: true
@@ -553,7 +644,7 @@ Window {
                             Text {
                                 id: countLabel
                                 anchors.centerIn: parent
-                                text: win.assetMode ? app.assets.length + "개" : mainModel.count + "개"
+                                text: win.assetMode ? app.assets.length + Lang.t("개", " items") : mainModel.count + Lang.t("개", " items")
                                 color: Theme.muted
                                 font.family: Theme.font
                                 font.pixelSize: 10
@@ -565,7 +656,7 @@ Window {
                             id: search
                             visible: !win.assetMode
                             Layout.preferredWidth: 320
-                            placeholder: "검색…  내용 · 언어 · 파일 이름"
+                            placeholder: Lang.t("검색…  내용 · 언어 · 파일 이름", "Search…  content · language · file name")
                             onTextChanged: searchDebounce.restart()
                             onAccepted: {
                                 if (text.length > 0)
@@ -580,20 +671,20 @@ Window {
 
                         ChipButton {
                             visible: win.assetMode
-                            text: "＋ 에셋 추가"
+                            text: Lang.t("＋ 에셋 추가", "＋ Add assets")
                             primary: true
                             onClicked: app.addAssets()
                         }
                         ChipButton {
                             visible: win.snippetMode
-                            text: "＋ 새 코드 블록"
+                            text: Lang.t("＋ 새 코드 블록", "＋ New snippet")
                             primary: true
                             onClicked: win.openSnippet(0, "", "", "", app.mainFolder)
                         }
 
                         ChipButton {
                             visible: !win.assetMode
-                            text: "최근 검색"
+                            text: Lang.t("최근 검색", "Recent searches")
                             checked: mainHistoryMenu.visible
                             onClicked: mainHistoryMenu.visible ? mainHistoryMenu.close() : mainHistoryMenu.popup()
                         }
@@ -603,81 +694,21 @@ Window {
                         Layout.fillWidth: true
                         spacing: 9
 
-                        Rectangle {
-                            implicitHeight: 34
-                            implicitWidth: tabsRow.implicitWidth + 8
-                            radius: 10
-                            color: Theme.surface2
-                            border.width: 1
-                            border.color: Theme.border
-
-                            RowLayout {
-                                id: tabsRow
-                                anchors.fill: parent
-                                anchors.margins: 3
-                                spacing: 2
-
-                                Repeater {
-                                    model: [
-                                        { key: "clips", label: "클립보드" },
-                                        { key: "snippets", label: "코드 블록" },
-                                        { key: "assets", label: "에셋" }
-                                    ]
-
-                                    Rectangle {
-                                        id: tabBg
-                                        required property var modelData
-                                        Layout.fillHeight: true
-                                        implicitWidth: tabText.implicitWidth + 28
-                                        radius: 8
-                                        color: app.viewMode === modelData.key
-                                               ? Theme.accent
-                                               : (tabHover.hovered ? Theme.surface : "transparent")
-
-                                        HoverHandler { id: tabHover }
-
-                                        Text {
-                                            id: tabText
-                                            anchors.centerIn: parent
-                                            text: tabBg.modelData.label
-                                            color: app.viewMode === tabBg.modelData.key ? Theme.accentText : Theme.muted
-                                            font.family: Theme.font
-                                            font.pixelSize: 12
-                                            font.bold: app.viewMode === tabBg.modelData.key
-                                        }
-
-                                        MouseArea {
-                                            anchors.fill: parent
-                                            cursorShape: Qt.PointingHandCursor
-                                            onClicked: app.setViewMode(tabBg.modelData.key)
-                                        }
-                                    }
-                                }
-                            }
-                        }
-
-                        Rectangle {
-                            visible: !win.assetMode
-                            implicitWidth: 1
-                            implicitHeight: 20
-                            color: Theme.border
-                        }
-
                         ChipButton {
                             visible: !win.assetMode
-                            text: "한/영 교환"
+                            text: Lang.t("한/영 교환", "Convert case")
                             enabled: win.currentClipId() > 0
                             onClicked: app.swapLanguage(win.currentClipId())
                         }
                         ChipButton {
                             visible: !win.assetMode
-                            text: "선택 복사"
+                            text: Lang.t("선택 복사", "Copy selection")
                             enabled: win.currentClipId() > 0
                             onClicked: app.copyItem(win.currentClipId())
                         }
                         ChipButton {
                             visible: !win.assetMode
-                            text: win.snippetMode ? "코드 블록 편집" : "편집"
+                            text: win.snippetMode ? Lang.t("코드 블록 편집", "Edit snippet") : Lang.t("편집", "Edit")
                             enabled: win.currentClipId() > 0
                             onClicked: {
                                 var item = win.currentItem
@@ -690,7 +721,7 @@ Window {
                         }
                         ChipButton {
                             visible: !win.assetMode
-                            text: "고정"
+                            text: Lang.t("고정", "Pin")
                             checked: !!(win.currentItem && win.currentItem.pinned)
                             enabled: win.currentClipId() > 0
                             onClicked: app.setPinned(win.currentClipId(), !win.currentItem.pinned)
@@ -701,8 +732,8 @@ Window {
                         Text {
                             visible: !win.assetMode && win.width > 1150
                             text: win.snippetMode
-                                  ? "코드 블록은 정리·자동 삭제에서 보호됩니다"
-                                  : "클릭으로 선택 · 더블클릭 복사 · " + (app.stats.bytesText || "0 B") + " 저장됨"
+                                  ? Lang.t("코드 블록은 정리·자동 삭제에서 보호됩니다", "Snippets are protected from cleanup and auto-delete")
+                                  : Lang.t("클릭으로 선택 · 더블클릭 복사 · ", "Click to select · Double-click to copy · ") + (app.stats.bytesText || "0 B") + Lang.t(" 저장됨", " saved")
                             color: Theme.faint
                             font.family: Theme.font
                             font.pixelSize: 10
@@ -752,10 +783,10 @@ Window {
                                 anchors.centerIn: parent
                                 visible: mainModel.count === 0
                                 text: app.mainQuery.length > 0
-                                      ? "검색 결과가 없습니다"
+                                      ? Lang.t("검색 결과가 없습니다", "No results")
                                       : (win.snippetMode
-                                         ? "코드 블록을 만들면 폴더에 보관됩니다"
-                                         : "복사한 내용이 여기에 쌓입니다")
+                                         ? Lang.t("코드 블록을 만들면 폴더에 보관됩니다", "Snippets you create are stored in folders")
+                                         : Lang.t("복사한 내용이 여기에 쌓입니다", "Everything you copy will appear here"))
                                 color: Theme.faint
                                 font.family: Theme.font
                                 font.pixelSize: 12
@@ -877,7 +908,7 @@ Window {
                             Text {
                                 anchors.centerIn: parent
                                 visible: app.assets.length === 0
-                                text: "에셋 추가로 이미지, 폰트, 코드 파일을 보관하세요"
+                                text: Lang.t("에셋 추가로 이미지, 폰트, 코드 파일을 보관하세요", "Add assets to keep images, fonts and code files")
                                 color: Theme.faint
                                 font.family: Theme.font
                                 font.pixelSize: 12
@@ -900,7 +931,7 @@ Window {
                                 Text {
                                     Layout.fillWidth: true
                                     text: win.currentAsset.name !== undefined
-                                          ? win.currentAsset.name : "선택된 에셋 없음"
+                                          ? win.currentAsset.name : Lang.t("선택된 에셋 없음", "No asset selected")
                                     color: Theme.text
                                     font.family: Theme.font
                                     font.pixelSize: 13
@@ -912,7 +943,7 @@ Window {
                                     Layout.fillWidth: true
                                     text: win.currentAsset.sizeText !== undefined
                                           ? (win.currentAsset.ext + "  ·  " + win.currentAsset.sizeText)
-                                          : "왼쪽에서 에셋을 선택하세요"
+                                          : Lang.t("왼쪽에서 에셋을 선택하세요", "Select an asset on the left")
                                     color: Theme.faint
                                     font.family: Theme.font
                                     font.pixelSize: 10
@@ -970,18 +1001,18 @@ Window {
                                     spacing: 6
 
                                     ChipButton {
-                                        text: "열기"
+                                        text: Lang.t("열기", "Open")
                                         primary: true
                                         enabled: win.currentAsset.assetId !== undefined
                                         onClicked: app.openAsset(win.currentAsset.assetId)
                                     }
                                     ChipButton {
-                                        text: "경로 복사"
+                                        text: Lang.t("경로 복사", "Copy path")
                                         enabled: win.currentAsset.assetId !== undefined
                                         onClicked: app.copyAssetPath(win.currentAsset.assetId)
                                     }
                                     ChipButton {
-                                        text: "삭제"
+                                        text: Lang.t("삭제", "Delete")
                                         enabled: win.currentAsset.assetId !== undefined
                                         onClicked: app.removeAsset(win.currentAsset.assetId)
                                     }
@@ -998,7 +1029,7 @@ Window {
         id: mainHistoryMenu
 
         Repeater {
-            model: app.searchHistory.length > 0 ? app.searchHistory : ["검색 기록 없음"]
+            model: app.searchHistory.length > 0 ? app.searchHistory : [Lang.t("검색 기록 없음", "No search history")]
             MenuItem {
                 text: modelData
                 enabled: app.searchHistory.length > 0
@@ -1016,42 +1047,42 @@ Window {
         property var target: ({})
 
         MenuItem {
-            text: "붙여넣기"
+            text: Lang.t("붙여넣기", "Paste")
             onTriggered: app.pasteItem(itemMenu.target.clipId, false)
         }
         MenuItem {
-            text: "서식 없이 붙여넣기"
+            text: Lang.t("서식 없이 붙여넣기", "Paste without formatting")
             onTriggered: app.pasteItem(itemMenu.target.clipId, true)
         }
         StyledMenu {
-            title: "변환하여 붙여넣기"
-            MenuItem { text: "JSON (압축)"; onTriggered: app.pasteAs(itemMenu.target.clipId, "json") }
-            MenuItem { text: "JSON (정리)"; onTriggered: app.pasteAs(itemMenu.target.clipId, "json-pretty") }
-            MenuItem { text: "HTML (줄바꿈 <br>)"; onTriggered: app.pasteAs(itemMenu.target.clipId, "html") }
-            MenuItem { text: "Markdown 코드블록"; onTriggered: app.pasteAs(itemMenu.target.clipId, "markdown") }
-            MenuItem { text: "한 줄로"; onTriggered: app.pasteAs(itemMenu.target.clipId, "oneline") }
-            MenuItem { text: "따옴표 문자열"; onTriggered: app.pasteAs(itemMenu.target.clipId, "quote") }
+            title: Lang.t("변환하여 붙여넣기", "Paste as")
+            MenuItem { text: Lang.t("JSON (압축)", "JSON (compact)"); onTriggered: app.pasteAs(itemMenu.target.clipId, "json") }
+            MenuItem { text: Lang.t("JSON (정리)", "JSON (pretty)"); onTriggered: app.pasteAs(itemMenu.target.clipId, "json-pretty") }
+            MenuItem { text: Lang.t("HTML (줄바꿈 <br>)", "HTML (<br> line breaks)"); onTriggered: app.pasteAs(itemMenu.target.clipId, "html") }
+            MenuItem { text: Lang.t("Markdown 코드블록", "Markdown code block"); onTriggered: app.pasteAs(itemMenu.target.clipId, "markdown") }
+            MenuItem { text: Lang.t("한 줄로", "Single line"); onTriggered: app.pasteAs(itemMenu.target.clipId, "oneline") }
+            MenuItem { text: Lang.t("따옴표 문자열", "Quoted string"); onTriggered: app.pasteAs(itemMenu.target.clipId, "quote") }
             MenuItem { text: "Base64"; onTriggered: app.pasteAs(itemMenu.target.clipId, "base64") }
         }
         MenuItem {
-            text: "복사"
+            text: Lang.t("복사", "Copy")
             onTriggered: app.copyItem(itemMenu.target.clipId)
         }
         MenuSeparator {}
         MenuItem {
-            text: "한/영 교환"
+            text: Lang.t("한/영 교환", "Convert case")
             onTriggered: app.swapLanguage(itemMenu.target.clipId)
         }
         MenuItem {
-            text: "즐겨찾기 전환"
+            text: Lang.t("즐겨찾기 전환", "Toggle favorite")
             onTriggered: app.toggleFavorite(itemMenu.target.clipId)
         }
         MenuItem {
-            text: itemMenu.target.pinned ? "고정 해제" : "코드 블록으로 고정"
+            text: itemMenu.target.pinned ? Lang.t("고정 해제", "Unpin") : Lang.t("코드 블록으로 고정", "Pin as snippet")
             onTriggered: app.setPinned(itemMenu.target.clipId, !itemMenu.target.pinned)
         }
         MenuItem {
-            text: itemMenu.target.pinned ? "코드 블록 편집…" : "편집…"
+            text: itemMenu.target.pinned ? Lang.t("코드 블록 편집…", "Edit snippet…") : Lang.t("편집…", "Edit…")
             onTriggered: {
                 if (itemMenu.target.pinned)
                     win.openSnippet(itemMenu.target.clipId, itemMenu.target.title,
@@ -1063,7 +1094,7 @@ Window {
         }
         MenuSeparator {}
         StyledMenu {
-            title: "폴더로 이동"
+            title: Lang.t("폴더로 이동", "Move to folder")
             Repeater {
                 model: app.folders
                 MenuItem {
@@ -1073,12 +1104,12 @@ Window {
             }
             MenuSeparator {}
             MenuItem {
-                text: "폴더에서 빼기"
+                text: Lang.t("폴더에서 빼기", "Remove from folder")
                 onTriggered: app.moveToFolder(itemMenu.target.clipId, -1)
             }
         }
         MenuItem {
-            text: "삭제"
+            text: Lang.t("삭제", "Delete")
             onTriggered: app.deleteItem(itemMenu.target.clipId)
         }
     }
@@ -1088,15 +1119,15 @@ Window {
         property var asset: ({})
 
         MenuItem {
-            text: "열기"
+            text: Lang.t("열기", "Open")
             onTriggered: app.openAsset(assetMenu.asset.assetId)
         }
         MenuItem {
-            text: "경로 복사"
+            text: Lang.t("경로 복사", "Copy path")
             onTriggered: app.copyAssetPath(assetMenu.asset.assetId)
         }
         StyledMenu {
-            title: "폴더로 이동"
+            title: Lang.t("폴더로 이동", "Move to folder")
             Repeater {
                 model: app.assetFolders
                 MenuItem {
@@ -1106,13 +1137,13 @@ Window {
             }
             MenuSeparator {}
             MenuItem {
-                text: "폴더에서 빼기"
+                text: Lang.t("폴더에서 빼기", "Remove from folder")
                 onTriggered: app.moveAsset(assetMenu.asset.assetId, -1)
             }
         }
         MenuSeparator {}
         MenuItem {
-            text: "삭제"
+            text: Lang.t("삭제", "Delete")
             onTriggered: app.removeAsset(assetMenu.asset.assetId)
         }
     }
@@ -1122,20 +1153,20 @@ Window {
         property var folder: ({})
 
         MenuItem {
-            text: "하위 폴더 만들기"
+            text: Lang.t("하위 폴더 만들기", "New subfolder")
             onTriggered: win.openAddFolder(folderMenu.folder.id,
                                            folderMenu.folder.scope === "asset" ? "asset" : "clip")
         }
         MenuItem {
-            text: "이름 · 색상 편집"
+            text: Lang.t("이름 · 색상 편집", "Edit name · color")
             onTriggered: win.openFolderDialog(folderMenu.folder.id, folderMenu.folder.name,
                                               folderMenu.folder.parentId, folderMenu.folder.color,
                                               folderMenu.folder.scope === "asset" ? "asset" : "clip")
         }
         StyledMenu {
-            title: "다른 폴더로 이동"
+            title: Lang.t("다른 폴더로 이동", "Move to another folder")
             MenuItem {
-                text: "최상위로"
+                text: Lang.t("최상위로", "Move to top level")
                 onTriggered: app.moveFolder(folderMenu.folder.id, -1)
             }
             Repeater {
@@ -1149,7 +1180,7 @@ Window {
         }
         MenuSeparator {}
         MenuItem {
-            text: "폴더 삭제"
+            text: Lang.t("폴더 삭제", "Delete folder")
             onTriggered: {
                 folderDeleteDialog.folderId = folderMenu.folder.id
                 folderDeleteDialog.folderName = folderMenu.folder.name
@@ -1170,7 +1201,7 @@ Window {
         }
         MenuSeparator {}
         MenuItem {
-            text: "폴더 없음"
+            text: Lang.t("폴더 없음", "No folders")
             onTriggered: snippetDialog.folderId = -1
         }
     }
@@ -1216,8 +1247,8 @@ Window {
                 ColumnLayout {
                     spacing: 1
                     Text {
-                        text: folderDialog.folderId > 0 ? "폴더 편집"
-                              : (folderDialog.parentId > 0 ? "하위 폴더 만들기" : "새 폴더")
+                        text: folderDialog.folderId > 0 ? Lang.t("폴더 편집", "Edit folder")
+                              : (folderDialog.parentId > 0 ? Lang.t("하위 폴더 만들기", "New subfolder") : Lang.t("새 폴더", "New folder"))
                         color: Theme.text
                         font.family: Theme.font
                         font.pixelSize: 15
@@ -1225,7 +1256,7 @@ Window {
                     }
                     Text {
                         visible: folderDialog.parentId > 0
-                        text: "상위 폴더 · " + win.folderName(folderDialog.parentId)
+                        text: Lang.t("상위 폴더 · ", "Parent folder · ") + win.folderName(folderDialog.parentId)
                         color: Theme.faint
                         font.family: Theme.font
                         font.pixelSize: 10
@@ -1237,12 +1268,12 @@ Window {
             Field {
                 id: folderName
                 Layout.fillWidth: true
-                placeholderText: "폴더 이름"
+                placeholderText: Lang.t("폴더 이름", "Folder name")
                 onAccepted: folderDialog.commit()
             }
 
             Text {
-                text: "색상"
+                text: Lang.t("색상", "Colors")
                 color: Theme.faint
                 font.family: Theme.font
                 font.pixelSize: 9
@@ -1297,11 +1328,11 @@ Window {
                 spacing: 8
                 Item { Layout.fillWidth: true }
                 ChipButton {
-                    text: "취소"
+                    text: Lang.t("취소", "Cancel")
                     onClicked: folderDialog.close()
                 }
                 ChipButton {
-                    text: "저장"
+                    text: Lang.t("저장", "Save")
                     primary: true
                     onClicked: folderDialog.commit()
                 }
@@ -1354,7 +1385,7 @@ Window {
             spacing: 10
 
             Text {
-                text: snippetDialog.editId > 0 ? "코드 블록 편집" : "새 코드 블록"
+                text: snippetDialog.editId > 0 ? Lang.t("코드 블록 편집", "Edit snippet") : Lang.t("새 코드 블록", "New snippet")
                 color: Theme.text
                 font.family: Theme.font
                 font.pixelSize: 16
@@ -1363,7 +1394,7 @@ Window {
 
             Text {
                 Layout.fillWidth: true
-                text: "제목과 언어를 지정해 보관합니다. 코드 블록은 자동 정리에서 삭제되지 않습니다."
+                text: Lang.t("제목과 언어를 지정해 보관합니다. 코드 블록은 자동 정리에서 삭제되지 않습니다.", "Save it with a title and language. Snippets are never removed by automatic cleanup.")
                 color: Theme.faint
                 font.family: Theme.font
                 font.pixelSize: 10
@@ -1377,12 +1408,12 @@ Window {
                 Field {
                     id: snippetTitle
                     Layout.fillWidth: true
-                    placeholderText: "제목 (예: 배포 스크립트)"
+                    placeholderText: Lang.t("제목 (예: 배포 스크립트)", "Title (e.g. deploy script)")
                 }
                 Field {
                     id: snippetLanguage
                     Layout.preferredWidth: 130
-                    placeholderText: "언어 (python)"
+                    placeholderText: Lang.t("언어 (python)", "Language (python)")
                 }
             }
 
@@ -1391,13 +1422,13 @@ Window {
                 spacing: 8
 
                 Text {
-                    text: "폴더"
+                    text: Lang.t("폴더", "Folders")
                     color: Theme.faint
                     font.family: Theme.font
                     font.pixelSize: 10
                 }
                 ChipButton {
-                    text: snippetDialog.folderId > 0 ? win.folderName(snippetDialog.folderId) : "폴더 없음"
+                    text: snippetDialog.folderId > 0 ? win.folderName(snippetDialog.folderId) : Lang.t("폴더 없음", "No folders")
                     onClicked: snippetFolderMenu.popup()
                 }
                 Item { Layout.fillWidth: true }
@@ -1429,7 +1460,7 @@ Window {
                         font.pixelSize: 12
                         background: null
                         padding: 6
-                        placeholderText: "코드를 붙여넣으세요"
+                        placeholderText: Lang.t("코드를 붙여넣으세요", "Paste your code")
                     }
                 }
             }
@@ -1439,18 +1470,18 @@ Window {
                 spacing: 8
 
                 ChipButton {
-                    text: "한/영 교환"
+                    text: Lang.t("한/영 교환", "Convert case")
                     onClicked: snippetBody.text = app.swapText(snippetBody.text)
                 }
 
                 Item { Layout.fillWidth: true }
 
                 ChipButton {
-                    text: "취소"
+                    text: Lang.t("취소", "Cancel")
                     onClicked: snippetDialog.close()
                 }
                 ChipButton {
-                    text: "저장"
+                    text: Lang.t("저장", "Save")
                     primary: true
                     onClicked: {
                         if (snippetBody.text.trim().length === 0)
@@ -1497,7 +1528,7 @@ Window {
         contentItem: ColumnLayout {
             spacing: 10
             Text {
-                text: "폴더 삭제"
+                text: Lang.t("폴더 삭제", "Delete folder")
                 color: Theme.text
                 font.family: Theme.font
                 font.pixelSize: 15
@@ -1505,7 +1536,7 @@ Window {
             }
             Text {
                 Layout.fillWidth: true
-                text: "'" + folderDeleteDialog.folderName + "' 폴더를 삭제할까요?\n하위 폴더도 함께 삭제됩니다. 항목은 지워지지 않고 폴더에서만 빠집니다."
+                text: "'" + folderDeleteDialog.folderName + Lang.t("' 폴더를 삭제할까요?\n하위 폴더도 함께 삭제됩니다. 항목은 지워지지 않고 폴더에서만 빠집니다.", "' Delete this folder?\nSubfolders are deleted too. Items are kept and only removed from the folder.")
                 color: Theme.muted
                 font.family: Theme.font
                 font.pixelSize: 11
@@ -1515,11 +1546,11 @@ Window {
                 spacing: 8
                 Item { Layout.fillWidth: true }
                 ChipButton {
-                    text: "취소"
+                    text: Lang.t("취소", "Cancel")
                     onClicked: folderDeleteDialog.close()
                 }
                 ChipButton {
-                    text: "삭제"
+                    text: Lang.t("삭제", "Delete")
                     primary: true
                     onClicked: {
                         app.deleteFolder(folderDeleteDialog.folderId)

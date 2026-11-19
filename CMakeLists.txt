@@ -34,12 +34,16 @@ qt_add_executable(Cloppy WIN32
     src/langswap.h
     src/theme.cpp
     src/theme.h
+    src/translate.cpp
+    src/translate.h
     src/types.cpp
     src/types.h
     src/winutils.cpp
     src/winutils.h
 )
 
+
+set_source_files_properties(qml/Lang.qml PROPERTIES QT_QML_SINGLETON_TYPE TRUE)
 
 qt_add_qml_module(Cloppy
     URI Cloppy
@@ -54,6 +58,7 @@ qt_add_qml_module(Cloppy
         qml/HelpWindow.qml
         qml/HotkeyField.qml
         qml/KindBadge.qml
+        qml/Lang.qml
         qml/MainWindow.qml
         qml/PopupWindow.qml
         qml/PreviewPane.qml

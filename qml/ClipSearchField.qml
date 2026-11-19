@@ -5,7 +5,7 @@ import QtQuick.Controls
 Item {
     id: root
     property alias text: input.text
-    property string placeholder: "검색…"
+    property string placeholder: Lang.t("검색…", "Search…")
     signal accepted()
     signal escapePressed()
     signal downPressed()

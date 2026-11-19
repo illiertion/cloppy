@@ -1,5 +1,6 @@
 #include "types.h"
 
+#include "translate.h"
 #include <QRegularExpression>
 
 QString humanizeTime(double timestamp)
@@ -10,13 +11,13 @@ QString humanizeTime(double timestamp)
     const QDateTime now = QDateTime::currentDateTime();
     const qint64 seconds = when.secsTo(now);
     if (seconds < 45)
-        return QStringLiteral("방금");
+        return Tr::text(QStringLiteral("방금"), QStringLiteral("Just now"));
     if (seconds < 3600)
-        return QStringLiteral("%1분 전").arg(seconds / 60);
+        return Tr::text(QStringLiteral("%1분 전"), QStringLiteral("%1 min ago")).arg(seconds / 60);
     if (when.date() == now.date())
         return when.toString(QStringLiteral("HH:mm"));
     if (when.date() == now.date().addDays(-1))
-        return QStringLiteral("어제");
+        return Tr::text(QStringLiteral("어제"), QStringLiteral("Yesterday"));
     if (when.date().year() == now.date().year())
         return when.toString(QStringLiteral("MM/dd"));
     return when.toString(QStringLiteral("yyyy/MM/dd"));
@@ -87,7 +88,7 @@ QVariantMap ClipItem::toMap() const
         entry.insert(QStringLiteral("dir"), info.absolutePath());
         entry.insert(QStringLiteral("exists"), info.exists());
         entry.insert(QStringLiteral("isDir"), info.isDir());
-        entry.insert(QStringLiteral("sizeText"), info.isFile() ? formatSize(info.size()) : QStringLiteral("폴더"));
+        entry.insert(QStringLiteral("sizeText"), info.isFile() ? formatSize(info.size()) : Tr::text(QStringLiteral("폴더"), QStringLiteral("Folders")));
         fileItems.append(entry);
     }
     map.insert(QStringLiteral("fileItems"), fileItems);

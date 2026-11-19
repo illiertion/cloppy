@@ -25,6 +25,7 @@ class AppController : public QObject
     Q_PROPERTY(int popupX READ popupX NOTIFY popupGeometryChanged)
     Q_PROPERTY(int popupY READ popupY NOTIFY popupGeometryChanged)
     Q_PROPERTY(bool darkTheme READ darkTheme NOTIFY settingsChanged)
+    Q_PROPERTY(QString language READ language NOTIFY languageChanged)
     Q_PROPERTY(QVariantMap settings READ settingsMap NOTIFY settingsChanged)
     Q_PROPERTY(QString hotkeyText READ hotkeyText NOTIFY settingsChanged)
     Q_PROPERTY(QString langswapText READ langswapText NOTIFY settingsChanged)
@@ -74,6 +75,7 @@ public:
     int popupX() const { return m_popupX; }
     int popupY() const { return m_popupY; }
     bool darkTheme() const { return m_darkTheme; }
+    QString language() const { return m_language; }
     QVariantMap settingsMap() const;
     QString hotkeyText() const;
     QString langswapText() const;
@@ -164,6 +166,7 @@ public:
     Q_INVOKABLE void toggleSecretMode();
     Q_INVOKABLE void setPaused(bool paused);
     Q_INVOKABLE void setPopupPreview(bool visible);
+    Q_INVOKABLE void setLanguage(const QString &language);
     Q_INVOKABLE void setCapturing(bool capturing);
 
     Q_INVOKABLE void openSettings();
@@ -195,6 +198,7 @@ signals:
     void mainVisibleChanged();
     void popupGeometryChanged();
     void settingsChanged();
+    void languageChanged();
     void secretModeChanged();
     void pausedChanged();
     void dataChanged();
@@ -281,6 +285,7 @@ private:
     quintptr m_mainReturnTarget = 0;
 
     bool m_darkTheme = true;
+    QString m_language = QStringLiteral("en");
     QString m_hotkey;
     QString m_langHotkey;
     QString m_swapHotkey;
@@ -296,7 +301,7 @@ private:
     bool m_terminalPlainPaste = true;
     bool m_snippetsEnabled = true;
     QString m_swapDirection = QStringLiteral("auto");
-    QString m_hotkeyStatus = QStringLiteral("확인 중");
+    QString m_hotkeyStatus;
     qint64 m_lastSelectionSwap = 0;
     quintptr m_swapTarget = 0;
     QString m_swapSaved;

@@ -1,5 +1,6 @@
 #include "highlighter.h"
 
+#include "translate.h"
 #include <QSet>
 #include <QStringList>
 
@@ -78,7 +79,7 @@ bool isOperator(QChar ch)
 QString safeText(const QString &text)
 {
     if (text.size() > 40000)
-        return text.left(40000) + QStringLiteral("\n… (미리보기는 40,000자까지 표시)");
+        return text.left(40000) + Tr::text(QStringLiteral("\n… (미리보기는 40,000자까지 표시)"), QStringLiteral("\n… (preview limited to 40,000 characters)"));
     return text;
 }
 

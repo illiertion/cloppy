@@ -19,6 +19,19 @@ Window {
     flags: Qt.Tool | Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint
     property bool justOpened: false
 
+    property var kindFilters: {
+        var current = Lang.language
+        return [
+            { key: "", label: Lang.t("전체", "All") },
+            { key: "text", label: Lang.t("텍스트", "Text") },
+            { key: "code", label: Lang.t("코드", "Code") },
+            { key: "link", label: Lang.t("링크", "Links") },
+            { key: "image", label: Lang.t("이미지", "Images") },
+            { key: "files", label: Lang.t("파일", "Files") },
+            { key: "command", label: Lang.t("명령", "Commands") }
+        ]
+    }
+
     Binding { target: Theme; property: "dark"; value: app.darkTheme }
 
     property var currentItem: {
@@ -180,7 +193,7 @@ Window {
                 }
 
                 Text {
-                    text: (app.popupView === "assets" ? app.popupAssets.length : popupModel.count) + "개"
+                    text: (app.popupView === "assets" ? app.popupAssets.length : popupModel.count) + Lang.t("개", " items")
                     color: Theme.faint
                     font.family: Theme.font
                     font.pixelSize: 10
@@ -198,7 +211,7 @@ Window {
                     Text {
                         id: secretLabel
                         anchors.centerIn: parent
-                        text: "시크릿"
+                        text: Lang.t("시크릿", "Secret")
                         color: Theme.red
                         font.family: Theme.font
                         font.pixelSize: 9
@@ -223,9 +236,9 @@ Window {
             ClipSearchField {
                 id: search
                 Layout.fillWidth: true
-                placeholder: app.popupView === "assets" ? "검색…  에셋 이름"
-                                                         : (app.popupView === "snippets" ? "검색…  코드 블록"
-                                                                                          : "검색…  내용, 언어, 파일")
+                placeholder: app.popupView === "assets" ? Lang.t("검색…  에셋 이름", "Search…  asset name")
+                                                         : (app.popupView === "snippets" ? Lang.t("검색…  코드 블록", "Search…  snippets")
+                                                                                          : Lang.t("검색…  내용, 언어, 파일", "Search…  content, language, files"))
                 onTextChanged: searchDebounce.restart()
                 onAccepted: {
                     if (text.length > 0)
@@ -245,17 +258,17 @@ Window {
                 spacing: 4
 
                 ChipButton {
-                    text: "클립"
+                    text: Lang.t("클립", "Clips")
                     checked: app.popupView === "clips"
                     onClicked: app.setPopupView("clips")
                 }
                 ChipButton {
-                    text: "코드"
+                    text: Lang.t("코드", "Code")
                     checked: app.popupView === "snippets"
                     onClicked: app.setPopupView("snippets")
                 }
                 ChipButton {
-                    text: "에셋"
+                    text: Lang.t("에셋", "Assets")
                     checked: app.popupView === "assets"
                     onClicked: app.setPopupView("assets")
                 }
@@ -271,15 +284,7 @@ Window {
                 spacing: 4
                 clip: true
                 boundsBehavior: Flickable.StopAtBounds
-                model: [
-                    { key: "", label: "전체" },
-                    { key: "text", label: "텍스트" },
-                    { key: "code", label: "코드" },
-                    { key: "link", label: "링크" },
-                    { key: "image", label: "이미지" },
-                    { key: "files", label: "파일" },
-                    { key: "command", label: "명령" }
-                ]
+                model: win.kindFilters
 
                 delegate: ChipButton {
                     text: modelData.label
@@ -300,7 +305,7 @@ Window {
                 clip: true
                 boundsBehavior: Flickable.StopAtBounds
                 model: {
-                    var items = [{ id: -1, name: "폴더 전체" }]
+                    var items = [{ id: -1, name: Lang.t("폴더 전체", "All folders") }]
                     for (var i = 0; i < app.quickFolders.length; ++i)
                         items.push(app.quickFolders[i])
                     return items
@@ -357,8 +362,8 @@ Window {
                             width: parent.width - 24
                             visible: popupModel.count === 0
                             text: app.popupView === "snippets"
-                                  ? "고정한 코드 블록이 없습니다\n전체 창에서 클립을 고정해 보세요"
-                                  : "아직 기록이 없습니다\n무엇이든 복사하면 여기에 쌓입니다"
+                                  ? Lang.t("고정한 코드 블록이 없습니다\n전체 창에서 클립을 고정해 보세요", "No pinned snippets\nPin a clip in the main window")
+                                  : Lang.t("아직 기록이 없습니다\n무엇이든 복사하면 여기에 쌓입니다", "Nothing recorded yet\nAnything you copy will appear here")
                             color: Theme.faint
                             font.family: Theme.font
                             font.pixelSize: 11
@@ -431,7 +436,7 @@ Window {
                     anchors.centerIn: parent
                     width: parent.width - 24
                     visible: app.popupView === "assets" && app.popupAssets.length === 0
-                    text: "저장된 에셋이 없습니다\n전체 창의 에셋 탭에서 추가하세요"
+                    text: Lang.t("저장된 에셋이 없습니다\n전체 창의 에셋 탭에서 추가하세요", "No assets saved\nAdd them in the Assets tab")
                     color: Theme.faint
                     font.family: Theme.font
                     font.pixelSize: 11
@@ -443,10 +448,10 @@ Window {
             Text {
                 Layout.fillWidth: true
                 text: app.popupView === "assets"
-                      ? "클릭 = 에셋 경로 복사"
+                      ? Lang.t("클릭 = 에셋 경로 복사", "Click = copy asset path")
                       : (app.popupView === "snippets"
-                         ? "클릭 = 코드 블록 붙여넣기 · Del 삭제"
-                         : "클릭 = 붙여넣기 · Enter 붙여넣기 · Del 삭제")
+                         ? Lang.t("클릭 = 코드 블록 붙여넣기 · Del 삭제", "Click = paste snippet · Del to delete")
+                         : Lang.t("클릭 = 붙여넣기 · Enter 붙여넣기 · Del 삭제", "Click = paste · Enter to paste · Del to delete"))
                 color: Theme.faint
                 font.family: Theme.font
                 font.pixelSize: 9
@@ -458,21 +463,21 @@ Window {
                 spacing: 5
 
                 ChipButton {
-                    text: "최근"
+                    text: Lang.t("최근", "Recent")
                     checked: historyMenu.visible
                     onClicked: historyMenu.visible ? historyMenu.close() : historyMenu.popup()
                 }
                 ChipButton {
-                    text: "한/영"
+                    text: Lang.t("한/영", "Case")
                     onClicked: if (win.currentId()) app.swapLanguage(win.currentId())
                 }
                 Item { Layout.fillWidth: true }
                 ChipButton {
-                    text: "전체 창"
+                    text: Lang.t("전체 창", "Full window")
                     onClicked: app.openMain()
                 }
                 ChipButton {
-                    text: app.secretMode ? "🔒" : "시크릿"
+                    text: app.secretMode ? "🔒" : Lang.t("시크릿", "Secret")
                     checked: app.secretMode
                     onClicked: app.toggleSecretMode()
                 }
@@ -484,7 +489,7 @@ Window {
         id: historyMenu
 
         Repeater {
-            model: app.searchHistory.length > 0 ? app.searchHistory : ["검색 기록 없음"]
+            model: app.searchHistory.length > 0 ? app.searchHistory : [Lang.t("검색 기록 없음", "No search history")]
             MenuItem {
                 text: modelData
                 enabled: app.searchHistory.length > 0
@@ -502,47 +507,47 @@ Window {
         property var target: ({})
 
         MenuItem {
-            text: "붙여넣기"
+            text: Lang.t("붙여넣기", "Paste")
             onTriggered: app.pasteItem(contextMenu.target.clipId, false)
         }
         MenuItem {
-            text: "서식 없이 붙여넣기"
+            text: Lang.t("서식 없이 붙여넣기", "Paste without formatting")
             onTriggered: app.pasteItem(contextMenu.target.clipId, true)
         }
         StyledMenu {
-            title: "변환하여 붙여넣기"
-            MenuItem { text: "JSON (압축)"; onTriggered: app.pasteAs(contextMenu.target.clipId, "json") }
-            MenuItem { text: "JSON (정리)"; onTriggered: app.pasteAs(contextMenu.target.clipId, "json-pretty") }
-            MenuItem { text: "HTML (줄바꿈 <br>)"; onTriggered: app.pasteAs(contextMenu.target.clipId, "html") }
-            MenuItem { text: "Markdown 코드블록"; onTriggered: app.pasteAs(contextMenu.target.clipId, "markdown") }
-            MenuItem { text: "한 줄로"; onTriggered: app.pasteAs(contextMenu.target.clipId, "oneline") }
-            MenuItem { text: "따옴표 문자열"; onTriggered: app.pasteAs(contextMenu.target.clipId, "quote") }
+            title: Lang.t("변환하여 붙여넣기", "Paste as")
+            MenuItem { text: Lang.t("JSON (압축)", "JSON (compact)"); onTriggered: app.pasteAs(contextMenu.target.clipId, "json") }
+            MenuItem { text: Lang.t("JSON (정리)", "JSON (pretty)"); onTriggered: app.pasteAs(contextMenu.target.clipId, "json-pretty") }
+            MenuItem { text: Lang.t("HTML (줄바꿈 <br>)", "HTML (<br> line breaks)"); onTriggered: app.pasteAs(contextMenu.target.clipId, "html") }
+            MenuItem { text: Lang.t("Markdown 코드블록", "Markdown code block"); onTriggered: app.pasteAs(contextMenu.target.clipId, "markdown") }
+            MenuItem { text: Lang.t("한 줄로", "Single line"); onTriggered: app.pasteAs(contextMenu.target.clipId, "oneline") }
+            MenuItem { text: Lang.t("따옴표 문자열", "Quoted string"); onTriggered: app.pasteAs(contextMenu.target.clipId, "quote") }
             MenuItem { text: "Base64"; onTriggered: app.pasteAs(contextMenu.target.clipId, "base64") }
         }
         MenuItem {
-            text: "복사"
+            text: Lang.t("복사", "Copy")
             onTriggered: app.copyItem(contextMenu.target.clipId)
         }
         MenuSeparator {}
         MenuItem {
-            text: "즐겨찾기 전환"
+            text: Lang.t("즐겨찾기 전환", "Toggle favorite")
             onTriggered: app.toggleFavorite(contextMenu.target.clipId)
         }
         MenuItem {
-            text: "편집…"
+            text: Lang.t("편집…", "Edit…")
             onTriggered: app.openEdit(contextMenu.target.clipId)
         }
         MenuItem {
-            text: "한/영 교환"
+            text: Lang.t("한/영 교환", "Convert case")
             onTriggered: app.swapLanguage(contextMenu.target.clipId)
         }
         MenuItem {
-            text: "코드 블록으로 고정"
+            text: Lang.t("코드 블록으로 고정", "Pin as snippet")
             onTriggered: app.setPinned(contextMenu.target.clipId, true)
         }
         MenuSeparator {}
         StyledMenu {
-            title: "폴더로 이동"
+            title: Lang.t("폴더로 이동", "Move to folder")
             Repeater {
                 model: app.folders
                 MenuItem {
@@ -552,12 +557,12 @@ Window {
             }
             MenuSeparator {}
             MenuItem {
-                text: "폴더에서 빼기"
+                text: Lang.t("폴더에서 빼기", "Remove from folder")
                 onTriggered: app.moveToFolder(contextMenu.target.clipId, -1)
             }
         }
         MenuItem {
-            text: "삭제"
+            text: Lang.t("삭제", "Delete")
             onTriggered: app.deleteItem(contextMenu.target.clipId)
         }
     }

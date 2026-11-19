@@ -6,7 +6,7 @@ import QtQuick.Layouts
 
 Window {
     id: editWindow
-    title: "클립 내용 편집"
+    title: Lang.t("클립 내용 편집", "Edit clip")
     visible: app.editVisible
     width: Math.min(700, Screen.width - 40)
     height: Math.min(540, Screen.height - 80)
@@ -61,14 +61,14 @@ Window {
                 ColumnLayout {
                     spacing: 1
                     Text {
-                        text: "클립 내용 편집"
+                        text: Lang.t("클립 내용 편집", "Edit clip")
                         color: Theme.text
                         font.family: Theme.font
                         font.pixelSize: 16
                         font.bold: true
                     }
                     Text {
-                        text: app.editTitle + "  ·  저장하면 자동으로 다시 분류됩니다"
+                        text: app.editTitle + Lang.t("  ·  저장하면 자동으로 다시 분류됩니다", "  ·  Saved changes are re-classified automatically")
                         color: Theme.muted
                         font.family: Theme.font
                         font.pixelSize: 10
@@ -113,18 +113,18 @@ Window {
                 spacing: 8
 
                 ChipButton {
-                    text: "한/영 교환"
+                    text: Lang.t("한/영 교환", "Convert case")
                     onClicked: editor.text = app.swapText(editor.text)
                 }
 
                 Item { Layout.fillWidth: true }
 
                 ChipButton {
-                    text: "취소"
+                    text: Lang.t("취소", "Cancel")
                     onClicked: app.closeEdit()
                 }
                 ChipButton {
-                    text: "저장"
+                    text: Lang.t("저장", "Save")
                     primary: true
                     onClicked: editWindow.save()
                 }
