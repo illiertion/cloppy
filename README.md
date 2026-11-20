@@ -1,89 +1,94 @@
 # Cloppy
 
-Windows용 클립보드 매니저. 복사한 모든 내용을 모으고, 코드 블록·에셋·폴더로 정리하고, 빠른 창에서 바로 붙여넣습니다. C++ / Qt 6 / Qt Quick로 만들었습니다.
+[한국어 문서](README.ko.md)
 
-## 주요 기능
+A clipboard manager for Windows. Cloppy collects everything you copy and lets you organize clips, code blocks, assets, and folders, then paste them instantly from the quick window. Built with C++ / Qt 6 / Qt Quick.
 
-- **클립보드 기록**: 텍스트, 링크, 이미지, 파일을 자동 저장. 중복 병합, 고정(📌), 즐겨찾기, 시크릿 모드, 자동 정리
-- **빠른 창 (Win+V)**: Windows 기본 클립보드 대신 Cloppy 패널이 열립니다. 클립 / 코드 / 에셋 전환, 폴더 필터, 검색, 키보드 탐색, 창 크기 조절(기억됨)
-- **코드 블록**: 제목·언어·폴더로 코드 조각 보관, 자동 삭제에서 보호
-- **에셋**: 이미지·폰트·코드 파일을 앱 폴더로 복사해 보관, 미리보기/열기/경로 복사
-- **폴더**: 클립·에셋 폴더와 하위 폴더, 색상, 이동
-- **텍스트 확장**: `!mail` → `me@example.com` 같은 단축어. 한글 단축어(`!메일`) 지원, Cloppy 창 안에서도 동작
-- **한/영 변환**: `Ctrl+Alt+L` 선택 영역 즉시 변환, `Win+Alt+L` 클립보드 변환
-- **개발자 모드**: 터미널 복사 정리(ANSI 제거), 터미널 붙여넣기 단축키, 서식 없이 붙여넣기
-- **변환하여 붙여넣기**: JSON 압축/정리, HTML 줄바꿈, Markdown 코드블록, 한 줄로, 따옴표, Base64
-- **영어/한국어 UI**: 기본은 English, 설정 → 모양 → 언어에서 한국어로 전환 (즉시 적용)
-- **앱 내 사용법**: 사이드바 `? 사용법`, `F1`, 트레이 메뉴
+## Key Features
 
-## 요구 사항
+- **Clipboard History**: Automatically saves text, links, images, and files. Duplicate merging, pinning (📌), favorites, secret mode, and automatic cleanup
+- **Quick Window (Win+V)**: Opens the Cloppy panel instead of the default Windows clipboard. Switch between Clips / Code / Assets, filter by folder, search, navigate with the keyboard, and resize the window (size is remembered)
+- **Code Blocks**: Store code snippets with a title, language, and folder. Protected from automatic cleanup
+- **Assets**: Copies images, fonts, and code files into the app folder for storage. Preview, open, or copy their paths
+- **Folders**: Create folders and subfolders for clips and assets, with customizable colors and item moving
+- **Text Expansion**: `!mail` → `me@example.com` and similar shortcuts. Korean shortcuts such as `!메일` are supported, and text expansion also works inside the Cloppy window
+- **Korean/English Conversion**: Convert selected text instantly with `Ctrl+Alt+L`, or convert clipboard contents with `Win+Alt+L`
+- **Developer Mode**: Clean up terminal copies by removing ANSI escape sequences, terminal paste shortcuts, and paste without formatting
+- **Paste with Conversion**: Minify/format JSON, add HTML line breaks, convert to Markdown code blocks, make it a single line, add quotes, or encode as Base64
+- **English/Korean UI**: English by default. Switch to Korean under Settings → Appearance → Language. Changes apply immediately
+- **In-App Help**: Open from the `? Help` sidebar item, `F1`, or the system tray menu
 
-- Windows 10/11 64비트
-- Qt 6.5 이상 (개발 환경: Qt 6.12.0 `msvc2022_64`)
-- Visual Studio 2022 이상 (MSVC, CMake, Ninja 포함)
-- Qt Installer Framework 4.x (설치 프로그램을 만들 때만)
+## Requirements
 
-## 빌드
+- Windows 10/11 64-bit
+- Qt 6.5 or later (development environment: Qt 6.12.0 `msvc2022_64`)
+- Visual Studio 2022 or later (MSVC, CMake, and Ninja included)
+- Qt Installer Framework 4.x (only required for creating the installer)
 
-`build.bat`의 `QT_DIR`, `VS_DIR` 경로를 본인 환경에 맞게 고친 뒤 실행합니다.
+## Build
+
+Edit the `QT_DIR` and `VS_DIR` paths in `build.bat` to match your environment, then run:
 
 ```bat
 build.bat
 ```
 
-결과: `build\Cloppy.exe` (windeployqt로 필요한 DLL과 QML 모듈이 함께 배치됩니다)
+Output: `build\Cloppy.exe` (required DLLs and QML modules are deployed alongside it using `windeployqt`)
 
-## 포터블 패키지
+## Portable Package
 
 ```bat
 package.bat
 ```
 
-결과: `dist\` 폴더. `dist\Cloppy.exe`를 실행하며, 폴더 전체가 필요합니다.
+Output: the `dist\` folder. Run `dist\Cloppy.exe`; the entire folder is required.
 
-## 설치 프로그램 (Qt Installer Framework)
+## Installer (Qt Installer Framework)
 
 ```bat
 package.bat
 installer\build-installer.bat
 ```
 
-결과: `CloppySetup.exe`. 설치 시 시작 메뉴와 바탕화면 바로가기를 만들고, 기본 경로는 `%USERPROFILE%\Cloppy`입니다.
-IFW 경로가 다르면 `installer\build-installer.bat`의 `IFW_DIR`을 수정하세요.
+Output: `CloppySetup.exe`. The installer creates Start Menu and Desktop shortcuts. The default installation path is `%USERPROFILE%\Cloppy`.
 
-## 단축키
+If your IFW installation is located elsewhere, edit `IFW_DIR` in `installer\build-installer.bat`.
 
-| 단축키 | 동작 |
-| --- | --- |
-| `Win+V` | 빠른 창 열기/닫기 |
-| `Ctrl+,` / `F1` | 설정 / 사용법 |
-| `Ctrl+Alt+L` | 선택한 텍스트 한/영 변환 |
-| `Win+Alt+L` | 클립보드 내용 한/영 변환 |
-| `Ctrl+1 / 2 / 3` | 클립 / 코드 블록 / 에셋 보기 |
-| `Ctrl+F`, `Ctrl+N`, `Ctrl+Shift+N` | 검색, 새 폴더, 새 코드 블록 |
-| `Enter` / `Del` | 복사 / 삭제 |
+## Shortcuts
 
-모든 전역 단축키는 설정에서 바꾸거나 해제할 수 있습니다.
+| Shortcut                           | Action                                                |
+| ---------------------------------- | ----------------------------------------------------- |
+| `Win+V`                            | Open/close the Quick Window                           |
+| `Ctrl+,` / `F1`                    | Settings / Help                                       |
+| `Ctrl+Alt+L`                       | Convert selected text between Korean and English      |
+| `Win+Alt+L`                        | Convert clipboard contents between Korean and English |
+| `Ctrl+1 / 2 / 3`                   | View Clips / Code Blocks / Assets                     |
+| `Ctrl+F`, `Ctrl+N`, `Ctrl+Shift+N` | Search, New Folder, New Code Block                    |
+| `Enter` / `Del`                    | Copy / Delete                                         |
 
-## 데이터 위치
+All global shortcuts can be changed or disabled in Settings.
 
+## Data Locations
+
+```text
+%APPDATA%\Cloppy\Cloppy\cloppy.db      Clips, folders, and settings database (SQLite)
+%APPDATA%\Cloppy\Cloppy\images\        Image clips
+%APPDATA%\Cloppy\Cloppy\assets\        Asset files
+%APPDATA%\Cloppy\Cloppy\cloppy.log     Log file
 ```
-%APPDATA%\Cloppy\Cloppy\cloppy.db      클립·폴더·설정 DB (SQLite)
-%APPDATA%\Cloppy\Cloppy\images\        이미지 클립
-%APPDATA%\Cloppy\Cloppy\assets\        에셋 파일
-%APPDATA%\Cloppy\Cloppy\cloppy.log     로그
-```
 
-## 언어
+## Language
 
-UI 기본 언어는 English이며, 설정 → 모양 → Language에서 한국어로 바꿀 수 있습니다. 언어는 QSettings(`language`)에 저장되고, QML은 `Lang.t(한국어, English)` 싱글턴으로, C++ 알림은 `Tr::text()`로 번역합니다.
+The UI language is English by default. You can switch to Korean under Settings → Appearance → Language.
 
-## 구조
+The selected language is stored in QSettings (`language`). QML uses the `Lang.t(Korean, English)` singleton for translations, while C++ notifications use `Tr::text()`.
 
-```
+## Structure
+
+```text
 src/        C++ (AppController, ClipStore, HotkeyManager, WinUtils, LangSwap ...)
 qml/        Qt Quick UI (MainWindow, PopupWindow, SettingsWindow, HelpWindow ...)
-assets/     아이콘
-installer/  Qt Installer Framework 구성
+assets/     Icons
+installer/  Qt Installer Framework configuration
 build.bat / package.bat / run.bat
 ```
