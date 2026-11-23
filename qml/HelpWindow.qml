@@ -204,9 +204,11 @@ Window {
                         title: Lang.t("클립 보기", "Clip view")
                         body: Lang.t("메인 창 위쪽의 [클립보드] [코드 블록] [에셋] 탭으로 보기를 바꿉니다. 한 번 클릭하면 선택되고 오른쪽에 미리보기가 표시되며, 더블클릭하면 클립보드로 복사됩니다. Win+V 팝업에서는 한 번 클릭하면 이전 창에 바로 붙여넣습니다.", "Switch views with the [Clips] [Snippets] [Assets] tabs at the top of the main window. A single click selects and shows a preview on the right; a double click copies it. In the Win+V popup a single click pastes into the previous window.")
                     }
-                    Bullet { text: Lang.t("우클릭 → 변환하여 붙여넣기: JSON(압축/정리), HTML(줄바꿈 <br>), Markdown 코드블록, 한 줄로, 따옴표 문자열, Base64.", "Right-click -> Paste as: JSON (compact/pretty), HTML (<br> line breaks), Markdown code block, single line, quoted string, Base64.") }
+                    Bullet { text: Lang.t("우클릭 → 변환하여 붙여넣기: JSON(압축/정리/문자열), HTML(줄바꿈 <br>·엔티티 변환/해제), 문자열 이스케이프, URL·Base64 인코딩/디코딩, Markdown 코드블록/인라인, 한 줄로·쉼표 연결·공백 정리, camelCase/snake_case/CONSTANT_CASE, 각 줄 주석 처리.", "Right-click -> Paste as: JSON (compact/pretty/string), HTML (<br> line breaks, entity escape/undo), string escaping, URL and Base64 encode/decode, Markdown code block/inline code, single line / comma join / trim, camelCase / snake_case / CONSTANT_CASE, comment each line.") }
                     Bullet { text: Lang.t("우클릭 → 폴더로 이동으로 클립을 정리합니다.", "Right-click -> Move to folder to organize clips.") }
                     Bullet { text: Lang.t("‘코드 블록으로 고정’을 누르면 자동 정리에서 제외되고 코드 블록 보기에도 보관됩니다. 고정해도 클립 목록에서 사라지지 않습니다.", "Pinning as a snippet keeps the item out of automatic cleanup and also stores it in the snippet view. Pinned items stay in the clip list.") }
+                    Bullet { text: Lang.t("‘전체 지우기 (고정 제외)’는 트레이 메뉴, 빠른 창, 메인 창에서 실행할 수 있고, 고정한 항목만 남기고 모두 삭제합니다.", "Clear all (keep pinned) is available from the tray menu, the quick window and the main window. It deletes everything except pinned items.") }
+                    Bullet { text: Lang.t("설정 → 동작의 ‘목록 순서 유지’를 켜면 같은 내용을 다시 복사하거나 붙여넣어도 목록 순서가 바뀌지 않습니다.", "With Keep the list order stable in Settings -> Behavior, copying or pasting an existing clip again does not change the list order.") }
 
                     Section {
                         title: Lang.t("코드 블록 (Ctrl+2)", "Snippets (Ctrl+2)")
@@ -253,6 +255,12 @@ Window {
                     Bullet { text: Lang.t("단축키가 동작하지 않으면 설정의 ‘단축키 상태’를 확인하고, 다른 앱이 같은 조합을 쓰고 있지 않은지 확인하세요.", "If a shortcut does not work, check Hotkey status in Settings and make sure no other app uses the same combination.") }
                     Bullet { text: Lang.t("관리자 권한으로 실행 중인 앱에는 붙여넣기가 제한될 수 있습니다.", "Pasting into apps running as administrator may be restricted.") }
                     Bullet { text: Lang.t("변환이 안 되면 텍스트를 실제로 선택(드래그)한 상태인지 확인하세요. 선택 영역이 없으면 복사할 내용이 없습니다.", "If conversion does nothing, make sure text is actually selected (dragged). With no selection there is nothing to copy.") }
+
+                    Section {
+                        title: Lang.t("라이선스", "License")
+                        body: Lang.t("Cloppy와 Qt는 GNU LGPL v3 조건으로 배포됩니다. 트레이 메뉴 → 라이선스, 또는 설정 → 데이터 → 라이선스 보기에서 전문(Qt LGPL 고지, LGPL-3.0, GPL-3.0)을 확인할 수 있습니다.", "Cloppy and Qt are distributed under the GNU LGPL v3. Read the full texts (Qt LGPL notice, LGPL-3.0, GPL-3.0) from tray menu -> License or Settings -> Data -> View license.")
+                    }
+                    Bullet { text: Lang.t("Qt는 DLL로 동적 연결되어 있어 Qt 라이브러리와 QML 모듈을 자유롭게 교체·재연결할 수 있습니다. 자세한 내용은 THIRD-PARTY-NOTICES.md 를 참고하세요.", "Qt is dynamically linked, so the Qt libraries and QML modules can be replaced or relinked freely. See THIRD-PARTY-NOTICES.md for details.") }
 
                     Section {
                         title: Lang.t("저장 위치", "Storage")

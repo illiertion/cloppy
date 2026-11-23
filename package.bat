@@ -27,7 +27,27 @@ for /d %%V in ("%VS_DIR%\VC\Redist\MSVC\*") do (
     )
 )
 
+rem License texts and docs travel with every copy of the program (LGPL).
+if exist "dist\LICENSES" rmdir /s /q "dist\LICENSES"
+mkdir "dist\LICENSES"
+copy /y "LICENSE" "dist\" >nul
+copy /y "THIRD-PARTY-NOTICES.md" "dist\" >nul
+copy /y "README.md" "dist\" >nul
+copy /y "README.ko.md" "dist\" >nul
+copy /y "LICENSES\*.txt" "dist\LICENSES\" >nul
+copy /y "docs\*.txt" "dist\" >nul
+
+rem Portable zip for distribution.
+if exist "Cloppy-portable.zip" del /f /q "Cloppy-portable.zip"
+powershell -NoProfile -Command "Compress-Archive -Force -Path 'dist\*' -DestinationPath 'Cloppy-portable.zip'"
+if errorlevel 1 (
+    echo.
+    echo Creating Cloppy-portable.zip failed.
+    exit /b 1
+)
+
 echo.
 echo Portable folder ready: %~dp0dist
+echo Portable archive:      %~dp0Cloppy-portable.zip
 echo Run dist\Cloppy.exe - the whole folder is required.
 exit /b 0

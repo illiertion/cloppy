@@ -14,5 +14,6 @@ QtObject {
     property var popupWindow: PopupWindow {}
     property var settingsWindow: SettingsWindow {}
     property var helpWindow: HelpWindow {}
+    property var licenseWindow: LicenseWindow {}
     property var editWindow: EditWindow {}
 }

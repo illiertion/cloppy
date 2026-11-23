@@ -6,5 +6,8 @@
     <ReleaseDate>2026-11-19</ReleaseDate>
     <Default>true</Default>
     <Essential>true</Essential>
+    <Licenses>
+        <License name="Cloppy / Qt (GNU LGPL v3)" file="license.txt" />
+    </Licenses>
     <Script>installscript.qs</Script>
 </Package>

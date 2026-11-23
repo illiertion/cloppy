@@ -1,0 +1,54 @@
+Cloppy — Windows clipboard manager
+Copyright (C) 2026 illiertion (Geekpiz)
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Lesser General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+
+License texts shipped with this program
+---------------------------------------
+
+The full license texts are included with every copy of Cloppy, in the
+LICENSES directory next to Cloppy.exe (and inside the source tree):
+
+  LICENSES/LGPL-3.0.txt   GNU Lesser General Public License, version 3
+  LICENSES/GPL-3.0.txt    GNU General Public License, version 3
+
+The LGPL v3 incorporates the terms and conditions of the GPL v3 by
+reference, so both texts are included.
+
+
+Third-party software
+--------------------
+
+Cloppy is built with the Qt framework (Copyright (C) 2017 The Qt Company
+Ltd.), which is used under the GNU Lesser General Public License version 3.
+Qt is linked dynamically, so the Qt libraries and QML modules shipped next
+to Cloppy.exe may be replaced or relinked by anyone.
+
+See THIRD-PARTY-NOTICES.md for the full Qt copyright notice, the obligations
+that come with shipping LGPL software, the list of bundled components and
+the places where the corresponding Qt source code is available.
+
+
+Summary of the terms (informational — the license texts above are authoritative)
+--------------------------------------------------------------------------------
+
+  - You may use, study, modify and redistribute Cloppy, including as part of
+    commercial products.
+  - When you distribute Cloppy (modified or unmodified), you must keep the
+    copyright and license notices, ship the license texts, and provide (or
+    offer) the corresponding source code of Cloppy and of the LGPL-licensed
+    Qt libraries you distribute with it.
+  - Keep Qt dynamically linked so that users can replace the Qt libraries
+    with their own builds.

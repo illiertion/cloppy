@@ -83,6 +83,7 @@ Window {
         quickFolderIds = ids
         closeAfter.checked = values.closeAfterPaste !== false
         notifications.checked = values.notifications !== false
+        keepOrder.checked = values.keepOrder !== false
         programmerMode.checked = values.programmerMode === true
         terminalCleanCopy.checked = values.terminalCleanCopy !== false
         terminalPasteChord.checked = values.terminalPasteChord !== false
@@ -148,6 +149,7 @@ Window {
             popupFolders: quickFolderIds.join(","),
             closeAfterPaste: closeAfter.checked,
             notifications: notifications.checked,
+            keepOrder: keepOrder.checked,
             programmerMode: programmerMode.checked,
             terminalCleanCopy: terminalCleanCopy.checked,
             terminalPasteChord: terminalPasteChord.checked,
@@ -446,6 +448,7 @@ Window {
                     ToggleCheck { id: autostart; label: Lang.t("Windows 시작 시 Cloppy 자동 실행", "Start Cloppy with Windows") }
                     ToggleCheck { id: closeAfter; label: Lang.t("붙여넣은 뒤 빠른 창 닫기", "Close the quick window after pasting") }
                     ToggleCheck { id: notifications; label: Lang.t("알림 표시 (복사·변환·저장 안내)", "Show notifications (copy, convert, save)") }
+                    ToggleCheck { id: keepOrder; label: Lang.t("복사·붙여넣기 해도 목록 순서 유지 (재복사해도 맨 위로 안 올라옴)", "Keep the list order stable (re-copying or pasting does not move items to the top)") }
 
                     RowLayout {
                         spacing: 8
@@ -727,6 +730,10 @@ Window {
                         ChipButton {
                             text: Lang.t("즐겨찾기 외 삭제", "Delete all but favorites")
                             onClicked: confirmClear.open()
+                        }
+                        ChipButton {
+                            text: Lang.t("라이선스 보기", "View license")
+                            onClicked: app.openLicense()
                         }
                     }
 

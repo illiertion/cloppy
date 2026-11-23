@@ -356,8 +356,13 @@ QVector<ClipItem> ClipStore::list(const ClipFilter &filter) const
         binds << pattern << pattern << pattern << pattern;
     }
 
-    const QString sql = QStringLiteral("SELECT * FROM items WHERE %1 ORDER BY favorite DESC, last_used_at DESC LIMIT ?")
-                            .arg(where.join(QStringLiteral(" AND ")));
+    // keepOrder keeps the recorded order stable: re-copying or pasting an item
+    // only bumps its usage counters, it never jumps to the top of the list.
+    const QString order = filter.keepOrder
+        ? QStringLiteral("favorite DESC, created_at DESC, id DESC")
+        : QStringLiteral("favorite DESC, last_used_at DESC, id DESC");
+    const QString sql = QStringLiteral("SELECT * FROM items WHERE %1 ORDER BY %2 LIMIT ?")
+                            .arg(where.join(QStringLiteral(" AND ")), order);
     binds << (filter.limit > 0 ? filter.limit : 500);
 
     QSqlQuery query(m_db);

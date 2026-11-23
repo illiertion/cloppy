@@ -58,6 +58,9 @@ class AppController : public QObject
     Q_PROPERTY(bool popupPreview READ popupPreview NOTIFY settingsChanged)
     Q_PROPERTY(bool settingsVisible READ settingsVisible NOTIFY settingsVisibleChanged)
     Q_PROPERTY(bool helpVisible READ helpVisible NOTIFY helpVisibleChanged)
+    Q_PROPERTY(bool licenseVisible READ licenseVisible NOTIFY licenseVisibleChanged)
+    Q_PROPERTY(QString appVersion READ appVersion CONSTANT)
+    Q_PROPERTY(QString qtVersion READ qtVersion CONSTANT)
     Q_PROPERTY(bool editVisible READ editVisible NOTIFY editVisibleChanged)
     Q_PROPERTY(QString editText READ editText NOTIFY editVisibleChanged)
     Q_PROPERTY(QString editTitle READ editTitle NOTIFY editVisibleChanged)
@@ -108,6 +111,9 @@ public:
     bool popupPreview() const { return m_showPreview; }
     bool settingsVisible() const { return m_settingsVisible; }
     bool helpVisible() const { return m_helpVisible; }
+    bool licenseVisible() const { return m_licenseVisible; }
+    QString appVersion() const;
+    QString qtVersion() const;
     bool editVisible() const { return m_editVisible; }
     QString editText() const { return m_editText; }
     QString editTitle() const { return m_editTitle; }
@@ -183,7 +189,15 @@ public:
     Q_INVOKABLE void moveToFolder(qint64 itemId, qint64 folderId);
     Q_INVOKABLE void clearSearches();
     Q_INVOKABLE void clearItems();
+    Q_INVOKABLE void clearAllExceptPinned();
+    Q_INVOKABLE void confirmClearAll();
     Q_INVOKABLE void openDataFolder();
+
+    Q_INVOKABLE void openLicense();
+    Q_INVOKABLE void closeLicense();
+    Q_INVOKABLE QString licenseText(const QString &which) const;
+    Q_INVOKABLE QString licenseNotice() const;
+    Q_INVOKABLE void openLicenseFolder();
 
     Q_INVOKABLE QString formatHotkey(const QString &spec) const;
     Q_INVOKABLE QString highlight(const QString &text, const QString &language) const;
@@ -209,6 +223,7 @@ signals:
     void viewChanged();
     void settingsVisibleChanged();
     void helpVisibleChanged();
+    void licenseVisibleChanged();
     void editVisibleChanged();
 
 private:
@@ -257,6 +272,7 @@ private:
     int m_popupY = 0;
     bool m_settingsVisible = false;
     bool m_helpVisible = false;
+    bool m_licenseVisible = false;
     bool m_editVisible = false;
     qint64 m_editId = 0;
     QString m_editText;
@@ -295,6 +311,7 @@ private:
     bool m_showPreview = true;
     bool m_closeAfterPaste = true;
     bool m_notifications = true;
+    bool m_keepOrder = true;
     bool m_programmerMode = false;
     bool m_terminalCleanCopy = true;
     bool m_terminalPasteChord = true;

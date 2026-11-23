@@ -471,6 +471,11 @@ Window {
                     text: Lang.t("한/영", "Case")
                     onClicked: if (win.currentId()) app.swapLanguage(win.currentId())
                 }
+                ChipButton {
+                    text: Lang.t("지우기", "Clear")
+                    enabled: popupModel.count > 0
+                    onClicked: app.confirmClearAll()
+                }
                 Item { Layout.fillWidth: true }
                 ChipButton {
                     text: Lang.t("전체 창", "Full window")
@@ -514,15 +519,9 @@ Window {
             text: Lang.t("서식 없이 붙여넣기", "Paste without formatting")
             onTriggered: app.pasteItem(contextMenu.target.clipId, true)
         }
-        StyledMenu {
+        PasteAsMenu {
             title: Lang.t("변환하여 붙여넣기", "Paste as")
-            MenuItem { text: Lang.t("JSON (압축)", "JSON (compact)"); onTriggered: app.pasteAs(contextMenu.target.clipId, "json") }
-            MenuItem { text: Lang.t("JSON (정리)", "JSON (pretty)"); onTriggered: app.pasteAs(contextMenu.target.clipId, "json-pretty") }
-            MenuItem { text: Lang.t("HTML (줄바꿈 <br>)", "HTML (<br> line breaks)"); onTriggered: app.pasteAs(contextMenu.target.clipId, "html") }
-            MenuItem { text: Lang.t("Markdown 코드블록", "Markdown code block"); onTriggered: app.pasteAs(contextMenu.target.clipId, "markdown") }
-            MenuItem { text: Lang.t("한 줄로", "Single line"); onTriggered: app.pasteAs(contextMenu.target.clipId, "oneline") }
-            MenuItem { text: Lang.t("따옴표 문자열", "Quoted string"); onTriggered: app.pasteAs(contextMenu.target.clipId, "quote") }
-            MenuItem { text: "Base64"; onTriggered: app.pasteAs(contextMenu.target.clipId, "base64") }
+            targetId: contextMenu.target.clipId
         }
         MenuItem {
             text: Lang.t("복사", "Copy")

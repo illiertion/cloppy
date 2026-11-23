@@ -59,7 +59,9 @@ qt_add_qml_module(Cloppy
         qml/HotkeyField.qml
         qml/KindBadge.qml
         qml/Lang.qml
+        qml/LicenseWindow.qml
         qml/MainWindow.qml
+        qml/PasteAsMenu.qml
         qml/PopupWindow.qml
         qml/PreviewPane.qml
         qml/ClipSearchField.qml
@@ -80,6 +82,7 @@ target_link_libraries(Cloppy PRIVATE
 target_compile_definitions(Cloppy PRIVATE
     NOMINMAX
     WIN32_LEAN_AND_MEAN
+    CLOPPY_VERSION="${PROJECT_VERSION}"
 )
 
 if(MSVC)
@@ -92,6 +95,23 @@ qt_add_resources(Cloppy "cloppy_assets"
     FILES
         assets/cloppy.ico
         assets/cloppy.png
+)
+
+# License texts are embedded so the app can show them (tray menu -> License)
+# and are copied next to the executable for LGPL compliance.
+qt_add_resources(Cloppy "cloppy_license"
+    PREFIX "/licenses"
+    BASE "."
+    FILES
+        LICENSE
+)
+
+qt_add_resources(Cloppy "cloppy_license_texts"
+    PREFIX "/licenses"
+    BASE "LICENSES"
+    FILES
+        LICENSES/LGPL-3.0.txt
+        LICENSES/GPL-3.0.txt
 )
 
 set_target_properties(Cloppy PROPERTIES

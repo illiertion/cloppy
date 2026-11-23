@@ -52,6 +52,9 @@ int main(int argc, char *argv[])
     app.setOrganizationDomain(QStringLiteral("cloppy.local"));
     app.setApplicationName(QStringLiteral("Cloppy"));
     app.setApplicationDisplayName(QStringLiteral("Cloppy"));
+#ifdef CLOPPY_VERSION
+    app.setApplicationVersion(QString::fromLatin1(CLOPPY_VERSION));
+#endif
     app.setQuitOnLastWindowClosed(false);
     app.setWindowIcon(appIcon());
 

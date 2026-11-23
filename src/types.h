@@ -85,6 +85,9 @@ struct ClipFilter {
     qint64 folderId = -1;
     bool pinnedOnly = false;
     bool excludePinned = false;
+    // Keep the list in insertion order: copying or pasting an existing clip again
+    // must not move it back to the top.
+    bool keepOrder = true;
     QString query;
     int limit = 500;
 };

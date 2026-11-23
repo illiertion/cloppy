@@ -7,6 +7,7 @@ A clipboard manager for Windows. Cloppy collects everything you copy and lets yo
 ## Key Features
 
 - **Clipboard History**: Automatically saves text, links, images, and files. Duplicate merging, pinning (📌), favorites, secret mode, and automatic cleanup
+- **Stable List Order**: Copying or pasting an existing clip again keeps its place in the list (Settings → Behavior). "Clear all (keep pinned)" wipes history from the tray menu, the quick window and the main window
 - **Quick Window (Win+V)**: Opens the Cloppy panel instead of the default Windows clipboard. Switch between Clips / Code / Assets, filter by folder, search, navigate with the keyboard, and resize the window (size is remembered)
 - **Code Blocks**: Store code snippets with a title, language, and folder. Protected from automatic cleanup
 - **Assets**: Copies images, fonts, and code files into the app folder for storage. Preview, open, or copy their paths
@@ -14,7 +15,7 @@ A clipboard manager for Windows. Cloppy collects everything you copy and lets yo
 - **Text Expansion**: `!mail` → `me@example.com` and similar shortcuts. Korean shortcuts such as `!메일` are supported, and text expansion also works inside the Cloppy window
 - **Korean/English Conversion**: Convert selected text instantly with `Ctrl+Alt+L`, or convert clipboard contents with `Win+Alt+L`
 - **Developer Mode**: Clean up terminal copies by removing ANSI escape sequences, terminal paste shortcuts, and paste without formatting
-- **Paste with Conversion**: Minify/format JSON, add HTML line breaks, convert to Markdown code blocks, make it a single line, add quotes, or encode as Base64
+- **Paste with Conversion (developer tools)**: Minify/format JSON, add HTML line breaks (`<br>`), HTML entity escape/undo, string escape/undo, quoted/JSON strings, URL encode/decode, Base64 encode/decode, Markdown code block and inline code, single line, comma join, whitespace trim, `camelCase` / `PascalCase` / `snake_case` / `kebab-case` / `CONSTANT_CASE`, comment each line with `//` or `#`
 - **English/Korean UI**: English by default. Switch to Korean under Settings → Appearance → Language. Changes apply immediately
 - **In-App Help**: Open from the `? Help` sidebar item, `F1`, or the system tray menu
 
@@ -89,6 +90,31 @@ The selected language is stored in QSettings (`language`). QML uses the `Lang.t(
 src/        C++ (AppController, ClipStore, HotkeyManager, WinUtils, LangSwap ...)
 qml/        Qt Quick UI (MainWindow, PopupWindow, SettingsWindow, HelpWindow ...)
 assets/     Icons
+docs/       Usage notes shipped with the program
+LICENSES/   LGPL-3.0 and GPL-3.0 license texts
 installer/  Qt Installer Framework configuration
 build.bat / package.bat / run.bat
 ```
+
+## License
+
+Cloppy is free software licensed under the **GNU Lesser General Public
+License, version 3 (or any later version)**. See [LICENSE](LICENSE) for the
+project license and [LICENSES](LICENSES) for the full license texts
+(`LGPL-3.0.txt`, `GPL-3.0.txt`).
+
+Cloppy is built with **Qt**, which is used under the **GNU LGPL v3**:
+
+    The Qt Toolkit is Copyright (C) 2017 The Qt Company Ltd.
+    Contact: https://www.qt.io/licensing
+
+Qt is linked dynamically: the Qt DLLs and QML modules that ship next to
+`Cloppy.exe` may be replaced or relinked by anyone. Every distribution of
+Cloppy (portable zip and installer) includes the license texts in the
+`LICENSES` folder, and the app shows them from the tray menu → License.
+The corresponding Qt source code is available from
+<https://download.qt.io/official_releases/qt/> and <https://code.qt.io/>.
+
+Bundled third-party components (Qt, SQLite, Microsoft VC++ runtime, Qt
+Installer Framework) and their terms are listed in
+[THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).

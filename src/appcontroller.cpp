@@ -20,6 +20,7 @@
 #include <QJsonDocument>
 #include <QJsonParseError>
 #include <QMenu>
+#include <QMessageBox>
 #include <QMimeData>
 #include <QRegularExpression>
 #include <QScreen>
@@ -74,6 +75,132 @@ QString kindLabel(const QString &kind)
         {QStringLiteral("path"), Tr::text(QStringLiteral("경로"), QStringLiteral("Path"))},
     };
     return labels.value(kind, Tr::text(QStringLiteral("전체 클립"), QStringLiteral("All clips")));
+}
+
+QString escapeString(const QString &text, bool quote)
+{
+    QString out;
+    out.reserve(text.size() + 2);
+    if (quote)
+        out += QLatin1Char('"');
+    for (const QChar &c : text) {
+        switch (c.unicode()) {
+        case '\\': out += QStringLiteral("\\\\"); break;
+        case '"': out += QStringLiteral("\\\""); break;
+        case '\n': out += QStringLiteral("\\n"); break;
+        case '\r': out += QStringLiteral("\\r"); break;
+        case '\t': out += QStringLiteral("\\t"); break;
+        case '\0': out += QStringLiteral("\\0"); break;
+        default:
+            if (c.unicode() < 0x20)
+                out += QStringLiteral("\\u%1").arg(static_cast<uint>(c.unicode()), 4, 16,
+                                                    QLatin1Char('0'));
+            else
+                out += c;
+        }
+    }
+    if (quote)
+        out += QLatin1Char('"');
+    return out;
+}
+
+QString unescapeString(const QString &text)
+{
+    QString out;
+    out.reserve(text.size());
+    for (int i = 0; i < text.size(); ++i) {
+        const QChar c = text.at(i);
+        if (c != QLatin1Char('\\') || i + 1 >= text.size()) {
+            out += c;
+            continue;
+        }
+        const QChar n = text.at(++i);
+        switch (n.unicode()) {
+        case 'n': out += QLatin1Char('\n'); break;
+        case 'r': out += QLatin1Char('\r'); break;
+        case 't': out += QLatin1Char('\t'); break;
+        case '0': out += QChar(QChar::Null); break;
+        case 'u':
+            if (i + 4 < text.size()) {
+                bool ok = false;
+                const ushort code = text.mid(i + 1, 4).toUShort(&ok, 16);
+                if (ok) {
+                    out += QChar(code);
+                    i += 4;
+                    break;
+                }
+            }
+            out += n;
+            break;
+        default:
+            out += n;
+            break;
+        }
+    }
+    return out;
+}
+
+QString decodeHtmlEntities(const QString &text)
+{
+    QString out = text;
+    out.replace(QStringLiteral("&lt;"), QStringLiteral("<"));
+    out.replace(QStringLiteral("&gt;"), QStringLiteral(">"));
+    out.replace(QStringLiteral("&quot;"), QStringLiteral("\""));
+    out.replace(QStringLiteral("&#39;"), QStringLiteral("'"));
+    out.replace(QStringLiteral("&#x27;"), QStringLiteral("'"));
+    out.replace(QStringLiteral("&nbsp;"), QStringLiteral(" "));
+    out.replace(QStringLiteral("&amp;"), QStringLiteral("&"));
+    return out;
+}
+
+// Splits camelCase / snake_case / kebab-case text into lower-case words so that
+// the naming-style conversions stay predictable for any input.
+QStringList splitWords(const QString &text)
+{
+    QString normalized = text;
+    normalized.replace(QRegularExpression(QStringLiteral("([a-z0-9])([A-Z])")),
+                       QStringLiteral("\\1 \\2"));
+    normalized.replace(QRegularExpression(QStringLiteral("([A-Z]+)([A-Z][a-z])")),
+                       QStringLiteral("\\1 \\2"));
+    const QStringList parts = normalized.split(
+        QRegularExpression(QStringLiteral("[\\s_\\-./:]+")), Qt::SkipEmptyParts);
+    QStringList words;
+    words.reserve(parts.size());
+    for (const QString &part : parts)
+        words.append(part.toLower());
+    return words;
+}
+
+QString transformLabel(const QString &format)
+{
+    const QHash<QString, QString> labels = {
+        {QStringLiteral("json"), Tr::text(QStringLiteral("JSON (압축)"), QStringLiteral("JSON (compact)"))},
+        {QStringLiteral("json-pretty"), Tr::text(QStringLiteral("JSON (정리)"), QStringLiteral("JSON (pretty)"))},
+        {QStringLiteral("json-string"), Tr::text(QStringLiteral("JSON 문자열"), QStringLiteral("JSON string"))},
+        {QStringLiteral("html"), Tr::text(QStringLiteral("HTML 줄바꿈 <br>"), QStringLiteral("HTML (<br> line breaks)"))},
+        {QStringLiteral("html-escape"), Tr::text(QStringLiteral("HTML 엔티티 변환"), QStringLiteral("HTML entities"))},
+        {QStringLiteral("html-unescape"), Tr::text(QStringLiteral("HTML 엔티티 해제"), QStringLiteral("Undo HTML entities"))},
+        {QStringLiteral("escape"), Tr::text(QStringLiteral("문자열 이스케이프"), QStringLiteral("Escape string"))},
+        {QStringLiteral("unescape"), Tr::text(QStringLiteral("이스케이프 해제"), QStringLiteral("Unescape string"))},
+        {QStringLiteral("quote"), Tr::text(QStringLiteral("따옴표 문자열"), QStringLiteral("Quoted string"))},
+        {QStringLiteral("url-encode"), QStringLiteral("URL encode")},
+        {QStringLiteral("url-decode"), QStringLiteral("URL decode")},
+        {QStringLiteral("base64"), QStringLiteral("Base64")},
+        {QStringLiteral("base64-decode"), Tr::text(QStringLiteral("Base64 디코딩"), QStringLiteral("Base64 decode"))},
+        {QStringLiteral("markdown"), Tr::text(QStringLiteral("Markdown 코드블록"), QStringLiteral("Markdown code block"))},
+        {QStringLiteral("md-inline"), Tr::text(QStringLiteral("Markdown 인라인 코드"), QStringLiteral("Markdown inline code"))},
+        {QStringLiteral("oneline"), Tr::text(QStringLiteral("한 줄로"), QStringLiteral("Single line"))},
+        {QStringLiteral("join-comma"), Tr::text(QStringLiteral("쉼표로 연결"), QStringLiteral("Join with commas"))},
+        {QStringLiteral("trim"), Tr::text(QStringLiteral("공백 정리"), QStringLiteral("Trim whitespace"))},
+        {QStringLiteral("comment-slash"), Tr::text(QStringLiteral("각 줄 // 주석"), QStringLiteral("Comment each line //"))},
+        {QStringLiteral("comment-hash"), Tr::text(QStringLiteral("각 줄 # 주석"), QStringLiteral("Comment each line #"))},
+        {QStringLiteral("camel"), QStringLiteral("camelCase")},
+        {QStringLiteral("pascal"), QStringLiteral("PascalCase")},
+        {QStringLiteral("snake"), QStringLiteral("snake_case")},
+        {QStringLiteral("kebab"), QStringLiteral("kebab-case")},
+        {QStringLiteral("const"), QStringLiteral("CONSTANT_CASE")},
+    };
+    return labels.value(format, format);
 }
 
 } // namespace
@@ -187,6 +314,7 @@ void AppController::loadSettings()
     m_autostart = settings.value(QStringLiteral("autostart"), false).toBool();
     m_showPreview = settings.value(QStringLiteral("showPreviewInPopup"), true).toBool();
     m_closeAfterPaste = settings.value(QStringLiteral("closeAfterPaste"), true).toBool();
+    m_keepOrder = settings.value(QStringLiteral("keepOrder"), true).toBool();
     m_maxItems = settings.value(QStringLiteral("maxItems"), 3000).toInt();
     m_secretTtl = settings.value(QStringLiteral("secretTtlHours"), 24).toInt();
     m_pasteDelay = settings.value(QStringLiteral("pasteDelayMs"), 120).toInt();
@@ -224,6 +352,7 @@ QVariantMap AppController::settingsMap() const
     map.insert(QStringLiteral("autostart"), m_autostart);
     map.insert(QStringLiteral("showPreviewInPopup"), m_showPreview);
     map.insert(QStringLiteral("closeAfterPaste"), m_closeAfterPaste);
+    map.insert(QStringLiteral("keepOrder"), m_keepOrder);
     map.insert(QStringLiteral("maxItems"), m_maxItems);
     map.insert(QStringLiteral("secretTtlHours"), m_secretTtl);
     map.insert(QStringLiteral("pasteDelayMs"), m_pasteDelay);
@@ -321,6 +450,7 @@ void AppController::saveSettings(const QVariantMap &values)
     m_autostart = flag("autostart", m_autostart);
     m_showPreview = flag("showPreviewInPopup", m_showPreview);
     m_closeAfterPaste = flag("closeAfterPaste", m_closeAfterPaste);
+    m_keepOrder = flag("keepOrder", m_keepOrder);
     m_maxItems = qMax(100, number("maxItems", m_maxItems));
     m_secretTtl = qMax(0, number("secretTtlHours", m_secretTtl));
     m_pasteDelay = qBound(0, number("pasteDelayMs", m_pasteDelay), 2000);
@@ -351,6 +481,7 @@ void AppController::saveSettings(const QVariantMap &values)
     settings.setValue(QStringLiteral("autostart"), m_autostart);
     settings.setValue(QStringLiteral("showPreviewInPopup"), m_showPreview);
     settings.setValue(QStringLiteral("closeAfterPaste"), m_closeAfterPaste);
+    settings.setValue(QStringLiteral("keepOrder"), m_keepOrder);
     settings.setValue(QStringLiteral("maxItems"), m_maxItems);
     settings.setValue(QStringLiteral("secretTtlHours"), m_secretTtl);
     settings.setValue(QStringLiteral("pasteDelayMs"), m_pasteDelay);
@@ -410,10 +541,15 @@ void AppController::buildTray()
     connect(m_pauseAction, &QAction::toggled, this, &AppController::setPaused);
 
     m_trayMenu->addSeparator();
+    QAction *clearAction = m_trayMenu->addAction(
+        Tr::text(QStringLiteral("전체 지우기 (고정 제외)"), QStringLiteral("Clear all (keep pinned)")));
+    connect(clearAction, &QAction::triggered, this, &AppController::confirmClearAll);
     QAction *settingsAction = m_trayMenu->addAction(Tr::text(QStringLiteral("설정…"), QStringLiteral("Settings…")));
     connect(settingsAction, &QAction::triggered, this, &AppController::openSettings);
     QAction *helpAction = m_trayMenu->addAction(Tr::text(QStringLiteral("사용법"), QStringLiteral("Help")));
     connect(helpAction, &QAction::triggered, this, &AppController::openHelp);
+    QAction *licenseAction = m_trayMenu->addAction(Tr::text(QStringLiteral("라이선스"), QStringLiteral("License")));
+    connect(licenseAction, &QAction::triggered, this, &AppController::openLicense);
     m_trayMenu->addSeparator();
     QAction *quitAction = m_trayMenu->addAction(Tr::text(QStringLiteral("종료"), QStringLiteral("Quit")));
     connect(quitAction, &QAction::triggered, this, &AppController::quit);
@@ -563,6 +699,7 @@ ClipFilter AppController::popupFilter() const
     filter.query = m_popupQuery;
     filter.limit = 250;
     filter.secret = false;
+    filter.keepOrder = m_keepOrder;
     if (m_popupView == QStringLiteral("snippets")) {
         filter.pinnedOnly = true;
     } else {
@@ -578,6 +715,7 @@ ClipFilter AppController::mainFilter() const
     ClipFilter filter;
     filter.query = m_mainQuery;
     filter.limit = 500;
+    filter.keepOrder = m_keepOrder;
     if (m_viewMode == QStringLiteral("snippets")) {
         filter.pinnedOnly = true;
         if (m_mainFolder > 0) {
@@ -1010,7 +1148,7 @@ void AppController::pasteAs(qint64 id, const QString &format)
         closePopup();
     refreshAll();
     schedulePaste(target);
-    notify(Tr::text(QStringLiteral("변환하여 붙여넣기"), QStringLiteral("Paste as")), format);
+    notify(Tr::text(QStringLiteral("변환하여 붙여넣기"), QStringLiteral("Paste as")), transformLabel(format));
 }
 
 QString AppController::transformText(const QString &text, const QString &format) const
@@ -1036,12 +1174,18 @@ QString AppController::transformText(const QString &text, const QString &format)
         return QStringLiteral("\"%1\"").arg(escaped);
     }
 
-    if (key == QStringLiteral("html")) {
+    if (key == QStringLiteral("html") || key == QStringLiteral("html-br")) {
         QString escaped = text.toHtmlEscaped();
         escaped.replace(QStringLiteral("\r\n"), QStringLiteral("\n"));
         escaped.replace(QLatin1Char('\n'), QStringLiteral("<br>"));
         return escaped;
     }
+
+    if (key == QStringLiteral("html-escape"))
+        return text.toHtmlEscaped();
+
+    if (key == QStringLiteral("html-unescape"))
+        return decodeHtmlEntities(text);
 
     if (key == QStringLiteral("markdown")) {
         QString body = text;
@@ -1050,21 +1194,93 @@ QString AppController::transformText(const QString &text, const QString &format)
         return QStringLiteral("```\n%1\n```").arg(body);
     }
 
-    if (key == QStringLiteral("quote")) {
-        QString escaped = text;
-        escaped.replace(QLatin1Char('\\'), QStringLiteral("\\\\"));
-        escaped.replace(QLatin1Char('"'), QStringLiteral("\\\""));
-        escaped.replace(QLatin1Char('\n'), QStringLiteral("\\n"));
-        return QStringLiteral("\"%1\"").arg(escaped);
-    }
+    if (key == QStringLiteral("md-inline"))
+        return QStringLiteral("`%1`").arg(QString(text).trimmed());
+
+    if (key == QStringLiteral("quote") || key == QStringLiteral("json-string"))
+        return escapeString(text, true);
+
+    if (key == QStringLiteral("escape"))
+        return escapeString(text, false);
+
+    if (key == QStringLiteral("unescape"))
+        return unescapeString(text);
 
     if (key == QStringLiteral("base64"))
         return QString::fromLatin1(text.toUtf8().toBase64());
+
+    if (key == QStringLiteral("base64-decode"))
+        return QString::fromUtf8(QByteArray::fromBase64(text.trimmed().toLatin1()));
+
+    if (key == QStringLiteral("url-encode"))
+        return QString::fromLatin1(QUrl::toPercentEncoding(text));
+
+    if (key == QStringLiteral("url-decode"))
+        return QUrl::fromPercentEncoding(text.toUtf8());
 
     if (key == QStringLiteral("oneline")) {
         QString result = text;
         result.replace(QRegularExpression(QStringLiteral("[\\r\\n]+")), QStringLiteral(" "));
         return result.simplified();
+    }
+
+    if (key == QStringLiteral("join-comma")) {
+        QStringList lines;
+        for (const QString &line : text.split(QLatin1Char('\n'))) {
+            const QString trimmed = line.trimmed();
+            if (!trimmed.isEmpty())
+                lines.append(trimmed);
+        }
+        return lines.join(QStringLiteral(", "));
+    }
+
+    if (key == QStringLiteral("trim")) {
+        QStringList lines = text.split(QLatin1Char('\n'));
+        for (QString &line : lines) {
+            while (line.endsWith(QLatin1Char(' ')) || line.endsWith(QLatin1Char('\t'))
+                   || line.endsWith(QLatin1Char('\r')))
+                line.chop(1);
+        }
+        while (!lines.isEmpty() && lines.last().isEmpty())
+            lines.removeLast();
+        return lines.join(QStringLiteral("\n"));
+    }
+
+    if (key == QStringLiteral("comment-slash") || key == QStringLiteral("comment-hash")) {
+        const QString prefix = key == QStringLiteral("comment-hash") ? QStringLiteral("# ")
+                                                                     : QStringLiteral("// ");
+        QStringList lines;
+        for (const QString &line : text.split(QLatin1Char('\n'))) {
+            if (line.trimmed().isEmpty())
+                lines.append(QString());
+            else
+                lines.append(prefix + line);
+        }
+        while (!lines.isEmpty() && lines.last().isEmpty())
+            lines.removeLast();
+        return lines.join(QStringLiteral("\n"));
+    }
+
+    if (key == QStringLiteral("camel") || key == QStringLiteral("pascal")
+        || key == QStringLiteral("snake") || key == QStringLiteral("kebab")
+        || key == QStringLiteral("const")) {
+        const QStringList words = splitWords(text);
+        if (words.isEmpty())
+            return text;
+        if (key == QStringLiteral("snake"))
+            return words.join(QLatin1Char('_'));
+        if (key == QStringLiteral("kebab"))
+            return words.join(QLatin1Char('-'));
+        if (key == QStringLiteral("const"))
+            return words.join(QLatin1Char('_')).toUpper();
+        QString result;
+        for (int i = 0; i < words.size(); ++i) {
+            QString word = words.at(i);
+            if (!(key == QStringLiteral("camel") && i == 0))
+                word[0] = word[0].toUpper();
+            result += word;
+        }
+        return result;
     }
 
     return text;
@@ -1668,6 +1884,110 @@ void AppController::clearItems()
     m_store->clearItems(true);
     refreshAll();
     notify(Tr::text(QStringLiteral("클립 정리"), QStringLiteral("Clean up clips")), Tr::text(QStringLiteral("즐겨찾기를 제외한 클립을 삭제했습니다."), QStringLiteral("Deleted clips except favorites.")));
+}
+
+void AppController::clearAllExceptPinned()
+{
+    m_store->clearItems(false);
+    refreshAll();
+    notify(Tr::text(QStringLiteral("전체 지우기"), QStringLiteral("Clear all")),
+           Tr::text(QStringLiteral("고정한 항목만 남기고 모두 삭제했습니다."),
+                    QStringLiteral("Everything except pinned items was deleted.")));
+}
+
+void AppController::confirmClearAll()
+{
+    const QMessageBox::StandardButton answer = QMessageBox::question(
+        nullptr, Tr::text(QStringLiteral("전체 지우기 (고정 제외)"), QStringLiteral("Clear all (keep pinned)")),
+        Tr::text(QStringLiteral("고정한 항목을 제외한 모든 클립을 삭제할까요?\n즐겨찾기도 함께 삭제되며 되돌릴 수 없습니다."),
+                 QStringLiteral("Delete every clip except pinned items?\nFavorites are deleted too. This cannot be undone.")),
+        QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
+    if (answer != QMessageBox::Yes)
+        return;
+    clearAllExceptPinned();
+}
+
+// -------------------------------------------------------------------- license
+QString AppController::appVersion() const
+{
+    const QString version = QCoreApplication::applicationVersion();
+    return version.isEmpty() ? QStringLiteral("1.0.0") : version;
+}
+
+QString AppController::qtVersion() const
+{
+    return QString::fromLatin1(qVersion());
+}
+
+void AppController::openLicense()
+{
+    if (m_popupVisible)
+        closePopup();
+    if (m_licenseVisible)
+        return;
+    m_licenseVisible = true;
+    Q_EMIT licenseVisibleChanged();
+}
+
+void AppController::closeLicense()
+{
+    if (!m_licenseVisible)
+        return;
+    m_licenseVisible = false;
+    Q_EMIT licenseVisibleChanged();
+}
+
+QString AppController::licenseText(const QString &which) const
+{
+    const QHash<QString, QString> paths = {
+        {QStringLiteral("license"), QStringLiteral(":/licenses/LICENSE")},
+        {QStringLiteral("lgpl"), QStringLiteral(":/licenses/LGPL-3.0.txt")},
+        {QStringLiteral("gpl"), QStringLiteral(":/licenses/GPL-3.0.txt")},
+    };
+    QFile file(paths.value(which, QStringLiteral(":/licenses/LICENSE")));
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+        return Tr::text(QStringLiteral("라이선스 파일을 읽을 수 없습니다."),
+                        QStringLiteral("The license file could not be read."));
+    return QString::fromUtf8(file.readAll());
+}
+
+QString AppController::licenseNotice() const
+{
+    return Tr::text(
+        QStringLiteral("Cloppy %1 — Windows 클립보드 매니저\n"
+                       "Copyright (C) 2026 illiertion (Geekpiz)\n\n"
+                       "이 프로그램은 자유 소프트웨어입니다. GNU Lesser General Public License v3\n"
+                       "(또는 그 이상의 버전)에 따라 재배포·수정할 수 있습니다. 라이선스 전문은\n"
+                       "아래 또는 배포 폴더의 LICENSES\\LGPL-3.0.txt 를 참고하세요.\n\n"
+                       "이 소프트웨어는 Qt %2 (The Qt Company Ltd.) 로 만들어졌으며\n"
+                       "GNU Lesser General Public License v3 조건으로 사용합니다. Qt는 프로그램과\n"
+                       "DLL 로 동적 연결되어 있으므로 Qt 라이브러리를 자유롭게 교체·재연결할 수 있고,\n"
+                       "필요한 경우 해당 Qt 버전의 소스를 제공해야 할 의무가 있습니다.\n"
+                       "Qt 소스: https://download.qt.io/official_releases/qt/ · https://code.qt.io\n\n"
+                       "이 프로그램에는 어떠한 보증도 없습니다.\n"
+                       "자세한 내용은 THIRD-PARTY-NOTICES.md 를 참고하세요."),
+        QStringLiteral("Cloppy %1 — Windows clipboard manager\n"
+                       "Copyright (C) 2026 illiertion (Geekpiz)\n\n"
+                       "This program is free software: you can redistribute it and/or modify it\n"
+                       "under the terms of the GNU Lesser General Public License as published by\n"
+                       "the Free Software Foundation, either version 3 of the License, or\n"
+                       "(at your option) any later version. The full license text is below and in\n"
+                       "LICENSES\\LGPL-3.0.txt inside the distribution folder.\n\n"
+                       "This software was built with Qt %2 (The Qt Company Ltd.), used under the\n"
+                       "GNU Lesser General Public License v3. Qt is dynamically linked as DLLs, so\n"
+                       "you may replace or relink the Qt libraries, and the corresponding Qt\n"
+                       "sources must be offered when required.\n"
+                       "Qt sources: https://download.qt.io/official_releases/qt/ · https://code.qt.io\n\n"
+                       "This program is distributed without any warranty.\n"
+                       "See THIRD-PARTY-NOTICES.md for details."))
+        .arg(appVersion(), qtVersion());
+}
+
+void AppController::openLicenseFolder()
+{
+    const QString dir = QCoreApplication::applicationDirPath();
+    const QString licenseDir = QDir(dir).filePath(QStringLiteral("LICENSES"));
+    QDesktopServices::openUrl(QUrl::fromLocalFile(QDir(licenseDir).exists() ? licenseDir : dir));
 }
 
 void AppController::openDataFolder()
